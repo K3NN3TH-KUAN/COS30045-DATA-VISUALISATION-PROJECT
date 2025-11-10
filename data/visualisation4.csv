@@ -1,0 +1,136 @@
+"YEAR","JURISDICTION","DETECTION_METHOD","Sum(FINES)","TOTAL_LICENCES","LICENCES_PER_10,000"
+"2010","ACT","Police issued",2407,287134,83.83
+"2010","NSW","Police issued",51104,4791490,106.66
+"2010","NT","Police issued",998,132561,75.29
+"2010","QLD","Police issued",33013,3132341,105.39
+"2010","SA","Police issued",14139,1130920,125.02
+"2010","TAS","Police issued",3735,363291,102.81
+"2010","VIC","Police issued",54728,3978322,137.57
+"2010","WA","Police issued",11705,1566465,74.72
+"2011","ACT","Police issued",2284,294174,77.64
+"2011","NSW","Police issued",46714,4893688,95.46
+"2011","NT","Police issued",729,133035,54.8
+"2011","QLD","Police issued",30389,3240939,93.77
+"2011","SA","Police issued",13402,1138713,117.69
+"2011","TAS","Police issued",3241,367296,88.24
+"2011","VIC","Police issued",52630,4060582,129.61
+"2011","WA","Police issued",10485,1605793,65.29
+"2012","ACT","Police issued",1722,301841,57.05
+"2012","NSW","Police issued",42900,4984973,86.06
+"2012","NT","Police issued",722,138077,52.29
+"2012","QLD","Police issued",28548,3301004,86.48
+"2012","SA","Police issued",11623,1151821,100.91
+"2012","TAS","Police issued",2141,365359,58.6
+"2012","VIC","Police issued",61497,4135725,148.7
+"2012","WA","Police issued",17822,1623226,109.79
+"2013","ACT","Police issued",1356,307834,44.05
+"2013","NSW","Police issued",33514,5060762,66.22
+"2013","NT","Police issued",1058,146404,72.27
+"2013","QLD","Police issued",27998,3374824,82.96
+"2013","SA","Police issued",12560,1183292,106.14
+"2013","TAS","Police issued",2914,365295,79.77
+"2013","VIC","Police issued",52452,4228230,124.05
+"2013","WA","Police issued",14563,1854446,78.53
+"2014","ACT","Police issued",1115,314244,35.48
+"2014","NSW","Police issued",34952,5142396,67.97
+"2014","NT","Police issued",517,150653,34.32
+"2014","QLD","Police issued",25068,3384271,74.07
+"2014","SA","Police issued",11886,1196554,99.34
+"2014","TAS","Police issued",3256,366231,88.91
+"2014","VIC","Police issued",41448,4310687,96.15
+"2014","WA","Police issued",14377,1896560,75.81
+"2015","ACT","Police issued",873,312267,27.96
+"2015","NSW","Police issued",37989,5245755,72.42
+"2015","NT","Police issued",492,152268,32.31
+"2015","QLD","Police issued",23048,3432171,67.15
+"2015","SA","Police issued",12446,1206194,103.18
+"2015","TAS","Police issued",3273,370296,88.39
+"2015","VIC","Police issued",33598,4384609,76.63
+"2015","WA","Police issued",16666,1928430,86.42
+"2016","ACT","Police issued",1120,328377,34.11
+"2016","NSW","Police issued",38918,5337947,72.91
+"2016","NT","Police issued",535,154405,34.65
+"2016","QLD","Police issued",17213,3505706,49.1
+"2016","SA","Police issued",11153,1219494,91.46
+"2016","TAS","Police issued",3191,379305,84.13
+"2016","VIC","Police issued",27925,4474502,62.41
+"2016","WA","Police issued",14926,1952879,76.43
+"2017","ACT","Police issued",1299,324439,40.04
+"2017","NSW","Police issued",41020,5439711,75.41
+"2017","NT","Police issued",546,156344,34.92
+"2017","QLD","Police issued",15043,3580836,42.01
+"2017","SA","Police issued",11252,1232106,91.32
+"2017","TAS","Police issued",2738,380215,72.01
+"2017","VIC","Police issued",29293,4565595,64.16
+"2017","WA","Police issued",16718,1965031,85.08
+"2018","ACT","Police issued",1399,330574,42.32
+"2018","NSW","Police issued",37653,5529185,68.1
+"2018","NT","Police issued",861,157296,54.74
+"2018","QLD","Police issued",12828,3657643,35.07
+"2018","SA","Police issued",8471,1246015,67.98
+"2018","TAS","Police issued",2614,387773,67.41
+"2018","VIC","Police issued",32458,4665764,69.57
+"2018","WA","Police issued",17697,1977775,89.48
+"2019","ACT","Police issued",1098,329637,33.31
+"2019","NSW","Police issued",25463,5606175,45.42
+"2019","NT","Police issued",760,156344,48.61
+"2019","QLD","Police issued",11580,3719766,31.13
+"2019","SA","Police issued",7567,1258216,60.14
+"2019","TAS","Police issued",2355,398452,59.1
+"2019","VIC","Police issued",36694,4748539,77.27
+"2019","WA","Police issued",11850,1992380,59.48
+"2020","ACT","Police issued",812,326495,24.87
+"2020","NSW","Fixed or mobile camera",138847,5648327,245.82
+"2020","NSW","Police issued",12878,5648327,22.8
+"2020","NT","Police issued",380,157831,24.08
+"2020","QLD","Police issued",4823,3806397,12.67
+"2020","SA","Police issued",6325,1271958,49.73
+"2020","TAS","Police issued",1966,406437,48.37
+"2020","VIC","Police issued",21231,4807706,44.16
+"2020","WA","Police issued",7889,2013336,39.18
+"2021","ACT","Police issued",544,326454,16.66
+"2021","NSW","Fixed or mobile camera",163722,5775889,283.46
+"2021","NSW","Police issued",10360,5775889,17.94
+"2021","NT","Police issued",309,159208,19.41
+"2021","QLD","Fixed or mobile camera",14574,3888986,37.48
+"2021","QLD","Police issued",3973,3888986,10.22
+"2021","SA","Police issued",4799,1294479,37.07
+"2021","TAS","Police issued",2328,416263,55.93
+"2021","VIC","Police issued",15562,4895143,31.79
+"2021","WA","Police issued",4909,2036282,24.11
+"2022","ACT","Police issued",374,334900,11.17
+"2022","NSW","Fixed or mobile camera",194793,5960216,326.82
+"2022","NSW","Police issued",12904,5960216,21.65
+"2022","NT","Police issued",302,159063,18.99
+"2022","QLD","Fixed or mobile camera",118152,3973138,297.38
+"2022","QLD","Police issued",3487,3973138,8.78
+"2022","SA","Police issued",4583,1329139,34.48
+"2022","TAS","Police issued",1973,423676,46.57
+"2022","VIC","Police issued",19428,4968836,39.1
+"2022","WA","Police issued",6346,2078263,30.54
+"2023","ACT","Police issued",288,341420,8.44
+"2023","NSW","Fixed or mobile camera",202757,6040358,335.67
+"2023","NSW","Police issued",13285,6040358,21.99
+"2023","NT","Police issued",205,161361,12.7
+"2023","QLD","Fixed or mobile camera",77213,4051724,190.57
+"2023","QLD","Police issued",3079,4051724,7.6
+"2023","SA","Police issued",5769,1340060,43.05
+"2023","TAS","Fixed or mobile camera",870,426528,20.4
+"2023","TAS","Police issued",1558,426528,36.53
+"2023","VIC","Mobile camera",30723,5097911,60.27
+"2023","VIC","Police issued",18823,5097911,36.92
+"2023","WA","Police issued",3592,2132257,16.85
+"2024","ACT","Fixed or mobile camera",26936,347892,774.26
+"2024","ACT","Police issued",189,347892,5.43
+"2024","NSW","Fixed or mobile camera",147272,6166226,238.84
+"2024","NSW","Police issued",14725,6166226,23.88
+"2024","NT","Police issued",244,163416,14.93
+"2024","QLD","Fixed camera",72314,4154952,174.04
+"2024","QLD","Police issued",3020,4154952,7.27
+"2024","SA","Police issued",4605,1362548,33.8
+"2024","TAS","Fixed or mobile camera",1284,429865,29.87
+"2024","TAS","Police issued",1531,429865,35.62
+"2024","VIC","Fixed camera",0,5260408,0
+"2024","VIC","Mobile camera",42189,5260408,80.2
+"2024","VIC","Police issued",12886,5260408,24.5
+"2024","WA","Police issued",3731,2194816,17
