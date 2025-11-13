@@ -1,0 +1,207 @@
+body {
+  margin: 0;
+  font-family: "Inter", Arial, sans-serif;
+  scroll-snap-type: y mandatory;
+  overflow-y: scroll;
+  height: 100vh;
+  background: white;
+}
+
+/* Each full page section */
+.panel {
+  height: 100vh;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  scroll-snap-align: start;
+  padding: 40px 20px 80px; /* extra bottom space so footer doesn't overlap */
+  text-align: center;
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.panel > * {
+  animation: fadeIn 1s ease-in-out;
+}
+
+/* Top Left Government Logo */
+.top-left-logo {
+  position: fixed;
+  top: 20px;
+  left: 25px;
+  width: 250px; /* Adjust size here */
+  opacity: 0.85;
+  filter: brightness(0); /* Makes it black, visible on white */
+  transition: 0.3s ease;
+  z-index: 1000;
+}
+
+.top-left-logo:hover {
+  opacity: 1;
+  transform: scale(1.05);
+}
+.top-left-logo {
+  animation: fadeInLogo 1.5s ease;
+}
+
+@keyframes fadeInLogo {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* Center road image already working… just keep this */
+.header-img {
+  width: 180px;
+  height: auto;
+  display: block;
+  margin: 0 auto 22px;
+  border-radius: 10px;
+  opacity: 0.95;
+  transition: 0.3s;
+}
+
+/* Section 2 Side Layout */
+.content-row {
+  display: flex;
+  align-items: center;
+  justify-content: center; 
+  gap: 60px; 
+  width: 75%;
+  max-width: 1100px;
+  margin-top: 40px;
+}
+
+.text-left {
+  max-width: 500px;
+  text-align: left;
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+/* Police Car Image */
+.side-image {
+  width: 180px;
+  height: auto;
+  opacity: 0.9;
+  transition: 0.3s ease;
+}
+
+.side-image:hover {
+  transform: scale(1.08);
+  opacity: 1;
+}
+
+.side-image {
+  width: 190px;
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0px); }
+}
+
+/* Back Button */
+.back-btn {
+  position: absolute;
+  top: 40px;
+  right: 40px;
+  background: #f2f2f2;
+  color: #111;
+  border: none;
+  padding: 8px 18px;
+  font-size: 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.25s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+}
+
+.back-btn:hover {
+  background: #e7e7e7;
+  transform: translateY(-2px);
+}
+
+
+
+/* Headings */
+h1 {
+  font-size: 42px;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 14px;
+  color: #111;
+}
+
+.subtitle {
+  font-size: 18px;
+  color: #555;
+  margin-bottom: 40px;
+}
+
+/* Scroll Button */
+.scroll-btn {
+  background: black;
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  font-size: 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.35s;
+  animation: bounce 1.8s infinite;
+}
+.scroll-btn:hover {
+  background: #222;
+  transform: translateY(3px) scale(1.04);
+}
+
+/* Bounce Animation */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(7px); }
+}
+
+/* Section Titles */
+h2 {
+  font-size: 34px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+/* Text paragraph */
+.text-block {
+  max-width: 700px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #333;
+  margin-bottom: 35px;
+  text-align: left;
+}
+
+
+
+/* FOOTER stays inside section and always at bottom */
+.footer-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 8px 20px;
+  background: linear-gradient(to right, #f5d0da, #e4f0d0, #00a6a6);
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #222;
+  box-sizing: border-box;
+}
