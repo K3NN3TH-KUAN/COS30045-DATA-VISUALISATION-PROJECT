@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mobile Phone Use Enforcement in Australia</title>
     <link rel="stylesheet" href="css/style.css">
+   
 
 </head>
 
@@ -31,28 +32,53 @@
 </section>
 
 
-
 <!-- SECTION 2 -->
-<section class="panel" id="section2">
+<section id="background-section">
+
+    <!-- Back Button -->
     <button class="back-btn" onclick="scrollPrev()">⬆ Back</button>
-    
-    <h2>Background</h2>
 
-    <div class="content-row">
-        <div class="text-left">
-            <p>
-                Mobile phone use while driving is a major road safety concern in Australia. <br><br>
-                Before 2020, enforcement mainly relied on police officers observing drivers on the road. <br>
-                From 2020 onwards, several states introduced AI-enabled mobile detection cameras, 
-                which significantly increased the number of fines issued — especially in New South Wales.
-            </p>
-        </div>
+    <h2 class="bg-title">Background</h2>
 
-        <img src="assets/image/police.png" alt="Police Car" class="side-image">
+    <div class="background-text">
+        <p>
+            Australia has long struggled with mobile-phone use while driving. Until 2020, 
+            enforcement relied heavily on police officers manually observing drivers — 
+            a method limited by visibility and workforce capacity.
+        </p>
+        <p>
+            Since 2020, AI-enabled mobile detection cameras have significantly improved 
+            accuracy and enabled consistent, round-the-clock enforcement — most notably 
+            in New South Wales.
+        </p>
     </div>
 
+    <h3 class="audience-title">Who Uses This Dashboard?</h3>
+
+    <div class="audience-grid">
+        <div class="audience-card">
+            <div class="audience-icon">🏛️</div>
+            <h4>Government Policymakers</h4>
+            <p>Assess enforcement outcomes and inform legislation updates.</p>
+        </div>
+
+        <div class="audience-card">
+            <div class="audience-icon">🚓</div>
+            <h4>Transport Safety Agencies</h4>
+            <p>Monitor compliance trends and identify high-risk regions.</p>
+        </div>
+
+        <div class="audience-card">
+            <div class="audience-icon">📊</div>
+            <h4>Researchers & Analysts</h4>
+            <p>Study behavioural trends and evaluate enforcement effectiveness.</p>
+        </div>
+    </div>
+
+    <!-- SCROLL BUTTON -->
     <button class="scroll-btn" onclick="scrollNext()">Scroll Down ↓</button>
 
+    <!-- FOOTER BAR (MUST BE INSIDE SECTION!!) -->
     <div class="footer-bar">
         <span>@COS30045 Data Visualisation Project</span>
         <span>Team Member: Voong Zhe Hong, Alvin, Kenneth</span>
@@ -160,6 +186,39 @@
 </section>
 <!-- END SECTION -->
 
+
+<!-- New Blank Section A -->
+<section class="viz-section layout-card-left" id="blank1-section">
+    <button class="back-btn" onclick="scrollPrev()">⬆ Back</button>
+    <div class="viz-grid">
+        <!-- Data card on the left (revert design, keep color) -->
+        <aside class="viz-card vivid">
+            <h2>Trend in Enforcement Over Time</h2>
+            <ul>
+                <li>Camera-detected fines increased sharply after 2020.</li>
+                <li>Police-issued fines dropped over the same period.</li>
+                <li>Shift from manual to AI-based detection methods.</li>
+            </ul>
+            <button class="scroll-btn" onclick="scrollNext()">Scroll Down ↓</button>
+        </aside>
+        <!-- Chart (interactive) on the right -->
+        <div class="viz-chart">
+            <div class="viz-controls compact">
+                <label>Start <select id="year1-start"></select></label>
+                <label>End <select id="year1-end"></select></label>
+                <div class="btn-group">
+                    <button id="btn-police" class="toggle active">Police</button>
+                    <button id="btn-camera" class="toggle active">Camera</button>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div id="chart" class="chart-host"></div>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bar">
+        <span>@COS30045 Data Visualisation Project</span>
+        <span>Team Member: Voong Zhe Hong, Alvin, Kenneth</span>
 <!-- SECTION 3 -->
 <section id="charts-section">
     <div class="cta-box">
@@ -171,6 +230,98 @@
         <p class="cta-meta">@COS30045 Data Visualisation Project</p>
     </div>
 </section>
+
+<!-- New Blank Section B -->
+<section class="viz-section" id="blank2-section">
+    <button class="back-btn" onclick="scrollPrev()">⬆ Back</button>
+    <div class="viz-grid">
+        <!-- Graph (interactive) on the left -->
+        <div class="viz-chart">
+            <div class="viz-controls compact">
+                <label>Start <select id="year2-start"></select></label>
+                <label>End <select id="year2-end"></select></label>
+            </div>
+            <div class="chart-card">
+                <div id="chart2" class="chart-host"></div>
+            </div>
+        </div>
+        <!-- Data card on the right (revert design, keep color) -->
+        <aside class="viz-card vivid">
+            <h2>Enforcement Strength by State</h2>
+            <ul>
+                <li>NSW and QLD enforce mobile phone laws the most.</li>
+                <li>ACT shows high enforcement relative to peers.</li>
+                <li>TAS, NT, and WA trend lower across years.</li>
+            </ul>
+            <button class="scroll-btn" onclick="scrollNext()">Scroll Down ↓</button>
+        </aside>
+    </div>
+    <div class="footer-bar">
+        <span>@COS30045 Data Visualisation Project</span>
+        <span>Team Member: Voong Zhe Hong, Alvin, Kenneth</span>
+    </div>
+</section>
+
+<!-- New Blank Section C -->
+<section class="viz-section layout-vertical" id="blank3-section">
+    <button class="back-btn" onclick="scrollPrev()">⬆ Back</button>
+    <div class="viz-grid">
+        <!-- Graph (interactive) on top -->
+        <div class="viz-chart">
+            <div class="viz-controls compact">
+                <label>Year <select id="year3-select"></select></label>
+                <div class="btn-group">
+                    <button id="zoom-out" class="toggle" aria-label="Zoom out">−</button>
+                    <button id="zoom-in" class="toggle" aria-label="Zoom in">+</button>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div id="chart3" class="chart-host"></div>
+            </div>
+        </div>
+        <!-- Data card below (revert design, keep color) -->
+        <aside class="viz-card vivid">
+            <h2>Effectiveness of Enforcement Methods</h2>
+            <ul>
+                <li>ACT and NSW have the highest fines per 10,000 drivers.</li>
+                <li>Earlier and wider camera deployment in these states.</li>
+                <li>Camera enforcement appears more effective than police-only.</li>
+            </ul>
+            <button class="scroll-btn" onclick="scrollNext()">Scroll Down ↓</button>
+        </aside>
+    </div>
+    <div class="footer-bar">
+        <span>@COS30045 Data Visualisation Project</span>
+        <span>Team Member: Voong Zhe Hong, Alvin, Kenneth</span>
+    </div>
+</section>
+
+<!-- SECTION 3 -->
+<section id="charts-section">
+    <img src="assets/image/dashboard.webp" alt="Road Image" class="header-img">
+     <h2 class="end-title">End of Dashboard</h2>
+
+    <div class="cta-box">
+        <div class="cta-actions">
+            <a href="about.html" class="cta-btn">
+                <span class="cta-icon">👥</span> About Us
+            </a>
+
+            <a href="documentation.html" class="cta-btn">
+                <span class="cta-icon">📄</span> Documentation
+            </a>
+        </div>
+
+        <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="cta-top-btn">
+            ⬆ Back to Top
+        </button>
+
+        <p class="cta-meta">Team Member: Voong Zhe Hong, Alvin, Kenneth</p>
+        <p class="cta-meta">@COS30045 Data Visualisation Project</p>
+    </div>
+</section>
+
+
 
 
 

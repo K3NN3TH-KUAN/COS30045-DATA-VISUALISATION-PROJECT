@@ -1,0 +1,80 @@
+body {
+    font-family: "Inter", Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f7f9fc;
+}
+
+.doc-container {
+    max-width: 900px;
+    margin: 60px auto;
+    padding: 0 20px;
+}
+
+h1 {
+    font-size: 42px;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+h2 {
+    font-size: 28px;
+    margin-top: 40px;
+}
+
+.intro-text {
+    font-size: 17px;
+    line-height: 1.6;
+    color: #444;
+    margin-bottom: 25px;
+}
+
+.doc-card {
+    background: white;
+    padding: 20px 25px;
+    margin-bottom: 18px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.doc-card h3 {
+    margin-top: 0;
+    font-size: 20px;
+    color: #1d3557;
+}
+
+.dataset-list {
+    font-size: 17px;
+    line-height: 1.6;
+}
+
+.dataset-list li {
+    margin-bottom: 10px;
+}
+
+.button-row {
+    margin-top: 40px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.btn {
+    padding: 12px 24px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+}
+
+.btn.back {
+    background: #003f7f;
+}
+
+.btn.about {
+    background: #6c63ff;
+}
+
+.btn:hover {
+    opacity: 0.85;
+}
