@@ -3,70 +3,503 @@
 <head>
 <meta charset="UTF-8">
 <title>Documentation | Mobile Phone Enforcement Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="css/documentation.css">
 </head>
 
 <body>
+<!-- Topbar: replace emoji with proper SVG icons in the theme toggle button -->
+<header class="topbar" aria-label="Page header">
+    <div class="brand">Mobile Phone Enforcement Dashboard</div>
+    <!--  -->
+</header>
+
+<nav class="primary-nav" role="tablist" aria-label="Section navigation">
+    <a id="tab-overview" href="#overview" role="tab" aria-controls="overview" aria-selected="true">Overview</a>
+    <a id="tab-data-sources" href="#data-sources" role="tab" aria-controls="data-sources" aria-selected="false">Data Sources</a>
+    <a id="tab-processed-datasets" href="#processed-datasets" role="tab" aria-controls="processed-datasets" aria-selected="false">Processed Datasets</a>
+    <a id="tab-data-prep" href="#data-prep" role="tab" aria-controls="data-prep" aria-selected="false">Data Cleaning</a>
+    <a id="tab-data-exploration" href="#data-exploration" role="tab" aria-controls="data-explore" aria-selected="false">Data Exploration</a>
+    <a id="tab-glossary" href="#glossary" role="tab" aria-controls="glossary" aria-selected="false">Glossary</a>
+    <a id="tab-faq" href="#faq" role="tab" aria-controls="faq" aria-selected="false">FAQ</a>
+</nav>
 
 <section class="doc-container">
+    <article id="overview" class="section-panel active" role="tabpanel" aria-labelledby="tab-overview">
+        <header class="section-header">
+            <h1>Documentation</h1>
+            <p class="section-subtitle">Methodology, data sources, and definitions behind the dashboard.</p>
+        </header>
 
-    <h1>Documentation</h1>
+        <div class="grid grid-2">
+            <div class="card">
+                <h3>Purpose</h3>
+                <p>
+                    This documentation describes the datasets, processing steps, and definitions used to build the Mobile Phone Enforcement Dashboard. It aims to make the methodology transparent and the data reproducible.
+                </p>
+                <ul class="bullet">
+                    <li>Data sources from Australian road safety agencies and national yearbooks.</li>
+                    <li>Processed datasets designed for consistent state-level comparisons.</li>
+                    <li>Methodology, data cleaning pipeline, and key metric definitions.</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Quick Links</h3>
+                <p><a href="index.html">Dashboard</a> · <a href="about.html">About</a></p>
+                <p>Use the tabs above, or the floating menu to jump between sections.</p>
+            </div>
+        </div>
+    </article>
 
-    <!-- ================= DATA SOURCES ================= -->
-    <h2>Data Sources</h2>
-    <p class="intro-text">
-        This dashboard compiles data from multiple reliable sources to analyse mobile-phone
-        enforcement trends across Australia.  
-        The selected datasets support long-term trend analysis, enforcement method comparison,
-        and state-level evaluation.
-    </p>
+    <article id="data-sources" class="section-panel" role="tabpanel" aria-labelledby="tab-data-sources">
+        <header class="section-header">
+            <h2>Data Sources</h2>
+            <p class="intro-text">
+                The datasets used in this project were obtained from trustable and publicly accessible government repositories related to Australian road safety and transport statistics. The primary data sources are as below.
+            </p>
+        </header>
 
-    <div class="doc-card">
-        <h3>Mobile Phone Enforcement Statistics — Australian Road Safety Agencies</h3>
-        <p>
-            Core dataset containing annual enforcement counts for police-issued fines
-            and camera-detected offences.
-        </p>
-    </div>
+        <div class="stack">
+            <div class="card">
+                <h3>Mobile Phone Enforcement Data — Australian Road Safety Agencies</h3>
+                <p>
+                    Core dataset contains road safety enforcement activities undertaken across Australian states and territories from 2008 to 2024. It includes enforcement data from 8 agencies as below:
+                </p>
+                <ul class="bullet">
+                    <li>NSW Police Force</li>
+                    <li>Victoria Police</li>
+                    <li>Queensland Police Service and Department of Transports and Main Roads</li>
+                    <li>South Australia Police Force</li>
+                    <li>Western Australia Police Force</li>
+                    <li>Tasmania Department of Police and Emergency Management</li>
+                    <li>North Territory Police Force</li>
+                    <li>Australian Federal Police and Access Canberra</li>
+                </ul>
+                <p>
+                    The dataset is available for download in
+                    <a href="https://datahub.roadsafety.gov.au/sites/default/files/documents/police_enforcement_2024_fines.xlsx" target="_blank" rel="noopener">Mobile Phone Use Fines</a>.
+                </p>
+            </div>
 
-    <div class="doc-card">
-        <h3>AI-Based Camera Detection Records — State Transport Departments</h3>
-        <p>
-            Dataset includes detection counts from AI-enabled mobile phone cameras introduced
-            from 2020 onward.
-        </p>
-    </div>
+            <div class="card">
+                <h3>Australian Infrastructure and Transport Statistics Yearbook 2024</h3>
+                <p>
+                    The Yearbook provides a comprehensive annual compilation of infrastructure and transport statistics for use by policymakers, industry professionals, transport analysts, and the broader Australian community. For this project, we specifically extracted driver licence data from Table 6.13a–i of Chapter 6, which details the licence holders by age and gender across Australian states and territories. This dataset serves as a key input for analysing trends in traffic enforcement relative to the number of licensed drivers.
+                </p>
+                <p>
+                    The dataset is available for download in
+                    <a href="https://www.bitre.gov.au/sites/default/files/documents/bitre-yearbook-2024-06-road.xlsx" target="_blank" rel="noopener">Road Statistics Yearbook 2024</a>.
+                </p>
+            </div>
+        </div>
+    </article>
 
-    <div class="doc-card">
-        <h3>Driver Population & Licensing Data — Australian Bureau of Statistics</h3>
-        <p>
-            Provides the number of registered drivers per state, used to normalise enforcement
-            values for fair comparison.
-        </p>
-    </div>
+    <!-- Processed Datasets section -->
+    <article id="processed-datasets" class="section-panel" role="tabpanel" aria-labelledby="tab-processed-datasets">
+        <header class="section-header">
+            <h2>Processed Datasets</h2>
+            <p class="intro-text">
+                All datasets were cleaned, normalised, and formatted using KNIME to ensure consistency across states
+                and enforcement methods. These processed files were used directly in the dashboard visualisations.
+            </p>
+        </header>
+    
+        <ul class="dataset-list">
+            <!-- Clickable download links -->
+            <li>
+                <a href="data/visualisation1.csv" download>
+                    Annual Fines for Mobile Phone Use (CSV)
+                </a>
+            </li>
+            <li>
+                <a href="data/visualisation2.csv" download>
+                    Annual Fines by Jurisdiction (CSV)
+                </a>
+            </li>
+            <li>
+                <a href="data/visualisation3.csv" download>
+                    Fines per 10,000 Driver Licences by Jurisdiction per year (CSV)
+                </a>
+            </li>
+        </ul>
+    </article>
 
-    <!-- ================= PROCESSED DATASETS ================= -->
-    <h2>Processed Datasets</h2>
-    <p class="intro-text">
-        All datasets were cleaned, normalised, and formatted to ensure consistency across states
-        and enforcement methods. These processed files were used directly in the dashboard.
-    </p>
+    <article id="data-prep" class="section-panel" role="tabpanel" aria-labelledby="tab-data-prep">
+        <header class="section-header">
+            <h2>Data Cleaning</h2>
+            <p class="intro-text">Below are the clean and preprocessing steps for the datasets.</p>
+        </header>
+    
+        <div class="grid grid-2">
+            <div class="card">
+                <h3>Dataset 1: Mobile Phone Offences</h3>
+                <ol class="steps">
+                    <li>
+                        <strong>Loading the Dataset</strong><br>
+                        Loaded the first dataset using the KNIME CSV Reader node (mobile phone offences data).
+                    </li>
+                    <li>
+                        <strong>Removing Unused Columns</strong><br>
+                        Removed unneeded columns (start date, end date, location, age group) using the Column Filter node.
+                    </li>
+                    <li>
+                        <strong>Filtering for Mobile Phone Offences</strong><br>
+                        From <span class="hl-number">12,179</span> records containing various offences (speeding, seatbelt, etc.), kept only rows for the mobile phone use category using the Row Filter node, resulting in <span class="hl-number">2,517</span> records.
+                    </li>
+                    <li>
+                        <strong>Removing Unknown Detection Methods</strong><br>
+                        Removed rows where detection method was <span class="hl-text">Unknown</span> using another Row Filter node, leaving <span class="hl-number">2,435</span> clean records.
+                    </li>
+                    <li>
+                        <strong>Sorting the Data</strong><br>
+                        Sorted in ascending order by year and jurisdiction using the Sorter node for readability.
+                    </li>
+                    <li>
+                        <strong>Grouping Detection Methods</strong><br>
+                        Simplified detection methods into two categories using the Rule Engine node: <span class="hl-text">Police-issued fines</span> and <span class="hl-text">Camera-issued fines</span>, enabling clear trend comparisons.
+                    </li>
+                </ol>
+            </div>
+    
+            <div class="card">
+                <h3>Dataset 2: Licence Holders</h3>
+                <ol class="steps">
+                    <li>
+                        <strong>Loading the Dataset</strong><br>
+                        Loaded the licence holder dataset via the Excel Reader node. The tabular format required additional cleaning compared to the first dataset.
+                    </li>
+                    <li>
+                        <strong>Removing Unused Columns</strong><br>
+                        Used the Column Filter node to remove columns not required for analysis.
+                    </li>
+                    <li>
+                        <strong>Handling Missing Rows</strong><br>
+                        Applied the Row Filter node to remove rows with missing or empty values for completeness.
+                    </li>
+                    <li>
+                        <strong>Creating and Cleaning the Jurisdiction Column</strong><br>
+                        Replaced the original jurisdiction indicator (<span class="hl-text">Table 6.13a–i</span>) using the Rule Engine node, then used the Missing Value node to fill missing jurisdiction values for previous rows.
+                    </li>
+                    <li>
+                        <strong>Cleaning the Gender Column</strong><br>
+                        Filled missing gender values using the same approach to ensure consistency.
+                    </li>
+                    <li>
+                        <strong>Formatting the Year Column</strong><br>
+                        Converted full dates (e.g., <span class="hl-text">31 June 2022</span>) to year-only format (e.g., <span class="hl-number">2022</span>) using the String Manipulation node, and changed the Year column type from categorical to numerical for visualisation.
+                    </li>
+                    <li>
+                        <strong>Renaming and Sorting Columns</strong><br>
+                        Renamed the Year and Total Licences columns for clarity and arranged their order with the Sorter node to improve structure and readability.
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </article>
 
-    <ul class="dataset-list">
-        <li>Police-issued Enforcement by Year</li>
-        <li>Camera-detected Enforcement by Year</li>
-        <li>State-level Enforcement Strength Dataset</li>
-        <li>Enforcement Effectiveness per 10,000 Drivers</li>
-        <li>Combined Multi-Year Trend Dataset</li>
-    </ul>
+    <article id="data-exploration" class="section-panel" role="tabpanel" aria-labelledby="tab-data-exploration">
+        <header class="section-header">
+            <h2>Data Exploration</h2>
+            <p class="intro-text">Exploratory steps and nodes used to prepare Visualisation 1–3.</p>
+        </header>
+    
+        <!-- Table 8 -->
+        <div class="card-explore">
+            <h3>Data Exploration for Visualisation 1</h3>
+            <div class="table-wrap">
+                <table>
+                    <caption>KNIME nodes, their purpose, and example outputs for Visualisation 1.</caption>
+                    <thead>
+                        <tr>
+                            <th>KNIME Node Used</th>
+                            <th>Purpose of the Node</th>
+                            <th>Example Output / Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Pivot node</td>
+                            <td>Converts data layout to summarise key indicators in a matrix form.</td>
+                            <td>Group year for each detection method by summing the fines.</td>
+                        </tr>
+                        <tr>
+                            <td>Number to String node</td>
+                            <td>Converts numeric columns into string format for use in visualisation or joining nodes.</td>
+                            <td>Convert year to string data type.</td>
+                        </tr>
+                        <tr>
+                            <td>CSV Writer node</td>
+                            <td>Exports processed or analysed data into a CSV file for documentation or external use.</td>
+                            <td>Save to <code>visualisation1.csv</code> file.</td>
+                        </tr>
+                        <tr>
+                            <td>Line Plot node</td>
+                            <td>Visualises data trends and changes over time with continuous lines.</td>
+                            <td>Show the trends of annual fines per mobile phone use.</td>
+                        </tr>
+                        <tr>
+                            <td>Bar Chart node</td>
+                            <td>Creates bar graphs for comparing categorical data.</td>
+                            <td>Show the stacked bar chart with annual fines per mobile phone use.</td>
+                        </tr>
+                        <tr>
+                            <td>Stacked Area Chart node</td>
+                            <td>Displays part-to-whole relationships and cumulative changes over time.</td>
+                            <td>Show the trends of police and camera fines contributing to total fines across years.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    
+        <!-- Table 9 -->
+        <div class="card-explore">
+            <h3>Data Exploration for Visualisation 2</h3>
+            <div class="table-wrap">
+                <table>
+                    <caption>KNIME nodes, their purpose, and example outputs for Visualisation 2.</caption>
+                    <thead>
+                        <tr>
+                            <th>KNIME Node Used</th>
+                            <th>Purpose of the Node</th>
+                            <th>Example Output / Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Pivot node</td>
+                            <td>Converts data layout to summarise key indicators in a matrix form.</td>
+                            <td>Group year for each jurisdiction by summing up the fines.</td>
+                        </tr>
+                        <tr>
+                            <td>GroupBy node</td>
+                            <td>Performs aggregation to calculate key statistics like totals, averages, or percentages.</td>
+                            <td>Group year and jurisdiction by total fines.</td>
+                        </tr>
+                        <tr>
+                            <td>CSV Writer node</td>
+                            <td>Exports processed or analysed data into a CSV file for documentation or external use.</td>
+                            <td>Save to <code>visualisation2.csv</code> file.</td>
+                        </tr>
+                        <tr>
+                            <td>Column Renamer node</td>
+                            <td>Renames columns for consistency across datasets before joining.</td>
+                            <td>Rename the pivot columns created to standard jurisdiction names.</td>
+                        </tr>
+                        <tr>
+                            <td>Line Plot node</td>
+                            <td>Shows trends or changes in values over time.</td>
+                            <td>Show the trends of annual fines by jurisdiction.</td>
+                        </tr>
+                        <tr>
+                            <td>Heatmap</td>
+                            <td>Visualises the magnitude of values using colour gradients across two dimensions.</td>
+                            <td>Display the fines intensity per jurisdiction and year.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    
+        <!-- Table 10 -->
+        <div class="card-explore">
+            <h3>Data Exploration for Visualisation 3</h3>
+            <div class="table-wrap">
+                <table>
+                    <caption>KNIME nodes, their purpose, and example outputs for Visualisation 3.</caption>
+                    <thead>
+                        <tr>
+                            <th>KNIME Node Used</th>
+                            <th>Purpose of the Node</th>
+                            <th>Example Output / Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>GroupBy node</td>
+                            <td>Performs aggregation to calculate key statistics like totals, averages, or percentages.</td>
+                            <td>Group year and jurisdiction by sum of the fines.</td>
+                        </tr>
+                        <tr>
+                            <td>GroupBy node</td>
+                            <td>Performs aggregation to calculate key statistics like totals, averages, or percentages.</td>
+                            <td>Group year and jurisdiction by sum of the drivers’ licences.</td>
+                        </tr>
+                        <tr>
+                            <td>Joiner node</td>
+                            <td>Merges two or more datasets using matching key columns.</td>
+                            <td>Join the total driver licence counts into the police enforcement dataset.</td>
+                        </tr>
+                        <tr>
+                            <td>Math Formula node</td>
+                            <td>Performs arithmetic operations to create new calculated fields.</td>
+                            <td>Compute fines per 10,000 licences for fair comparison across jurisdictions.</td>
+                        </tr>
+                        <tr>
+                            <td>CSV Writer node</td>
+                            <td>Exports processed or analysed data into a CSV file for documentation or external use.</td>
+                            <td>Save to <code>visualisation3.csv</code> file.</td>
+                        </tr>
+                        <tr>
+                            <td>Number to String node</td>
+                            <td>Converts numeric columns into string format for use in visualisation or joining nodes.</td>
+                            <td>Convert year to string data type.</td>
+                        </tr>
+                        <tr>
+                            <td>Value Selection Widget node</td>
+                            <td>Allows user to select variables interactively for filtering or parameter control.</td>
+                            <td>Enable selection of specific year (2010–2024) for visualisation.</td>
+                        </tr>
+                        <tr>
+                            <td>Row Filter node</td>
+                            <td>Filters rows based on conditions or flow variables.</td>
+                            <td>Filter the year column using the flow variable created by the Value Selection Widget.</td>
+                        </tr>
+                        <tr>
+                            <td>Sorter node</td>
+                            <td>Organises data in a specific order for easier processing and comparison.</td>
+                            <td>Sort the fines per 10,000 licences rate in descending order.</td>
+                        </tr>
+                        <tr>
+                            <td>Color Manager node</td>
+                            <td>Assigns colours to data categories to enhance visual clarity.</td>
+                            <td>Apply a colourblind-friendly palette for jurisdiction.</td>
+                        </tr>
+                        <tr>
+                            <td>Bar Chart node</td>
+                            <td>Visualises category comparisons to show counts or totals by group.</td>
+                            <td>Display fines per 10,000 drivers’ licences by jurisdiction.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </article>
 
-    <!-- =============== BUTTONS =============== -->
+    <!-- Glossary section: replace the bullet list with a card grid -->
+    <article id="glossary" class="section-panel" role="tabpanel" aria-labelledby="tab-glossary">
+        <header class="section-header">
+            <h2>Glossary</h2>
+            <p class="intro-text">Terms and definitions used across the dashboard and documentation.</p>
+        </header>
+    
+        <!-- New card grid replacing the previous bullet list -->
+        <div class="glossary-grid" role="list">
+            <div class="glossary-card" role="listitem" tabindex="0" aria-labelledby="term-jurisdiction">
+                <h3 id="term-jurisdiction" class="term">Jurisdiction</h3>
+                <p class="def">State or territory in Australia.</p>
+            </div>
+            <div class="glossary-card" role="listitem" tabindex="0" aria-labelledby="term-detection">
+                <h3 id="term-detection" class="term">Detection Method</h3>
+                <p class="def">Police-issued vs camera-detected enforcement.</p>
+            </div>
+            <div class="glossary-card" role="listitem" tabindex="0" aria-labelledby="term-year">
+                <h3 id="term-year" class="term">Year</h3>
+                <p class="def">Time period for enforcement data aggregation.</p>
+            </div>
+            <div class="glossary-card" role="listitem" tabindex="0" aria-labelledby="term-fine-rate">
+                <h3 id="term-fine-rate" class="term">Fine rate per 10,000 driver licences</h3>
+                <p class="def">Fair comparison metric across jurisdictions with different population sizes.</p>
+            </div>
+        </div>
+    </article>
+
+    <article id="faq" class="section-panel" role="tabpanel" aria-labelledby="tab-faq">
+        <header class="section-header">
+            <h2>FAQ</h2>
+        </header>
+
+        <div class="grid grid-2">
+            <div class="card">
+                <h3>What time range is covered?</h3>
+                <p>Data sources generally cover <strong>2008–2024</strong>. Some jurisdictions may have more detailed coverage.</p>
+            </div>
+            <div class="card">
+                <h3>How are fine rates computed?</h3>
+                <p>Rates are computed using transparent formulas, usually normalised by a denominator like licences. See Methodology.</p>
+            </div>
+            <div class="card">
+                <h3>Are there limitations?</h3>
+                <p>Differences in reporting practices across jurisdictions may affect comparability. We document assumptions where relevant.</p>
+            </div>
+        </div>
+    </article>
+
     <div class="button-row">
         <a href="index.html" class="btn back">← Back to Dashboard</a>
         <a href="about.html" class="btn about">About Us →</a>
     </div>
-
 </section>
 
+<!-- Scroll to Top Button: replace arrow emoji with SVG -->
+<button class="scroll-top hide" id="scrollTop" aria-label="Scroll to top">
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+</button>
+
+<script>
+// Enable progressive enhancement styles
+document.body.classList.add('js');
+
+// Tabs + animated section transitions (kept and now run reliably)
+(function () {
+    const nav = document.querySelector('.primary-nav');
+    if (!nav) return;
+
+    const tabs = Array.from(nav.querySelectorAll('a'));
+    const panels = Array.from(document.querySelectorAll('.section-panel'));
+
+    function activate(id) {
+        panels.forEach(p => p.classList.toggle('active', p.id === id));
+        tabs.forEach(t => {
+            const selected = t.getAttribute('href') === `#${id}`;
+            t.setAttribute('aria-selected', selected ? 'true' : 'false');
+            t.classList.toggle('current', selected);
+        });
+    }
+
+    function getIdFromHash(hash) {
+        return (hash && hash.startsWith('#')) ? hash.slice(1) : 'overview';
+    }
+
+    activate(getIdFromHash(window.location.hash));
+
+    nav.addEventListener('click', (e) => {
+        const link = e.target.closest('a');
+        if (!link || !nav.contains(link)) return;
+        e.preventDefault();
+        const id = link.getAttribute('href').replace('#', '');
+        history.pushState(null, '', `#${id}`);
+        activate(id);
+    });
+
+    window.addEventListener('hashchange', () => {
+        activate(getIdFromHash(window.location.hash));
+    });
+})();
+
+// Replace the floating quick menu script with scroll-to-top behavior
+(function () {
+    const btn = document.getElementById('scrollTop');
+    if (!btn) return;
+    const showAt = 300;
+
+    function onScroll() {
+        if (window.scrollY > showAt) {
+            btn.classList.remove('hide');
+        } else {
+            btn.classList.add('hide');
+        }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    btn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+})();
+</script>
 </body>
 </html>
