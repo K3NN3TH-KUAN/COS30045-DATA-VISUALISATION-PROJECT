@@ -116,3 +116,32 @@
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+/* Theme variables to keep About page consistent */
+:root {
+    --bg: #f5f8fc;
+    --card-bg: #ffffff;
+    --text: #1a1a1a;
+    --muted: #4a5568;
+    --brand: #003f7f;
+    --accent: #2a9d8f;
+    --accent-2: #f0b429;
+    --border: #e6eaf2;
+}
+
+/* Replace any #003f7f with var(--brand) */
+.header, .cta, .btn-primary {
+    background: var(--brand);
+    color: #fff;
+    padding: 14px 26px;
+    border-radius: 10px;
+    font-size: 18px;
+    text-decoration: none;
+    transition: 0.25s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.about-back-btn:hover {
+    background: #163c69;
+    transform: translateY(-2px);
+}
