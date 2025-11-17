@@ -35,14 +35,39 @@ html { scroll-behavior: smooth; }
 * { box-sizing: border-box; }
 img { max-width: 100%; height: auto; }
 :focus-visible { outline: 0; box-shadow: 0 0 0 4px var(--ring); border-radius: 8px; }
+
+/* Page enter fade-up animation */
+@keyframes pageFadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.page-enter {
+    /* Start hidden; animation fills to visible */
+    opacity: 0;
+    animation: pageFadeUp 480ms ease-out forwards;
+    will-change: opacity, transform;
+    /* Avoid layout thrash during animation */
+    contain: layout style paint;
+}
+
+/* Respect reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
-    * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    .page-enter {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
 }
 
 /* =========================================================
    Header & Navigation
    ========================================================= */
-/* Header & Navigation */
 .topbar {
     position: sticky;
     top: 0;
@@ -337,7 +362,7 @@ p { line-height: 1.75; font-size: 16px; }
    Section Panels (animated)
    ========================================================= */
 /* Default: visible if JS is disabled */
-.section-panel { margin: 16px 0; }
+/* .section-panel { margin: 16px 0; } */
 
 /* When JS is enabled, we animate and show only the active panel */
 .js .section-panel {

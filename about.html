@@ -17,7 +17,7 @@
     <div class="topbar-right" aria-hidden="true"></div>
 </header>
 
-<section id="about-section" class="about-container">
+<section id="about-section" class="about-container page-enter">
     <h1 class="about-title">About Us</h1>
 
     <div class="about-intro">
@@ -31,7 +31,7 @@
         <p>
             This website visualises mobile phone enforcement trends in Australia from 2008–2024  
             using <strong>D3.js</strong>. Our goal is to transform raw enforcement data into clear,  
-            interactive, and meaningful insights that help users understand:
+            interactive, and meaningful insights that help users:
         </p>
 
         <ul class="about-list" role="list" aria-label="Key capabilities">
@@ -94,5 +94,27 @@
     </div>
 </section>
 
+<!-- Re-trigger page fade animation on initial load and BFCache restores -->
+<script>
+(function(){
+    var container = document.querySelector('.about-container');
+    if (!container) return;
+
+    function retriggerFade() {
+        container.classList.remove('page-enter');
+        // Force reflow to restart CSS animation
+        void container.offsetWidth;
+        container.classList.add('page-enter');
+    }
+
+    // Trigger once on load
+    retriggerFade();
+
+    // Re-trigger when returning via back/forward cache
+    window.addEventListener('pageshow', function(e) {
+        if (e.persisted) retriggerFade();
+    });
+})();
+</script>
 </body>
 </html>

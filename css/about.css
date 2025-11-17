@@ -113,14 +113,28 @@
 }
 
 /* Fade animation */
-@keyframes fadeIn {
+/* Page-level fade-up animation */
+@keyframes pageFadeUp {
     from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.page-enter {
+    opacity: 0;
+    animation: pageFadeUp 480ms ease-out forwards;
+    will-change: opacity, transform;
+    contain: layout style paint;
+}
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .page-enter {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
 }
 
-/* =========================================================
-   Theme & Base (modular, shared with documentation)
-   ========================================================= */
+/* Existing styles below remain unchanged */
+/* Topbar, layout, cards, grid, etc. */
 :root {
     --bg: #f5f8fc;
     --card-bg: #ffffff;

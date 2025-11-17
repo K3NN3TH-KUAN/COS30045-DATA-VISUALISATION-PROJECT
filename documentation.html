@@ -27,7 +27,7 @@
     <a id="tab-glossary" href="#glossary" role="tab" aria-controls="glossary" aria-selected="false">Glossary</a>
 </nav>
 
-<section class="doc-container">
+<section class="doc-container page-enter">
     <article id="overview" class="section-panel active" role="tabpanel" aria-labelledby="tab-overview">
         <header class="section-header">
             <h1>Documentation</h1>
@@ -43,13 +43,13 @@
                 <ul class="bullet">
                     <li>Data sources from Australian road safety agencies and national yearbooks.</li>
                     <li>Processed datasets designed for consistent state-level comparisons.</li>
-                    <li>Methodology, data cleaning pipeline, and key metric definitions.</li>
+                    <li>Data cleaning and exploration pipelines, and key metric definitions.</li>
                 </ul>
             </div>
             <div class="card">
                 <h3>Quick Links</h3>
                 <p><a href="index.html">Dashboard</a> · <a href="about.html">About</a></p>
-                <p>Use the tabs above, or the floating menu to jump between sections.</p>
+                <p>Use the tabs above to jump between sections.</p>
             </div>
         </div>
     </article>
@@ -420,68 +420,29 @@
     </svg>
 </button>
 
+<script src="js/documentation.js"></script>
+</body>
+</html>
+
+<!-- Re-trigger page fade animation on BFCache restores -->
 <script>
-// Enable progressive enhancement styles
-document.body.classList.add('js');
+(function(){
+    var container = document.querySelector('.doc-container');
+    if (!container) return;
 
-// Tabs + animated section transitions (kept and now run reliably)
-(function () {
-    const nav = document.querySelector('.primary-nav');
-    if (!nav) return;
-
-    const tabs = Array.from(nav.querySelectorAll('a'));
-    const panels = Array.from(document.querySelectorAll('.section-panel'));
-
-    function activate(id) {
-        panels.forEach(p => p.classList.toggle('active', p.id === id));
-        tabs.forEach(t => {
-            const selected = t.getAttribute('href') === `#${id}`;
-            t.setAttribute('aria-selected', selected ? 'true' : 'false');
-            t.classList.toggle('current', selected);
-        });
+    function retriggerFade() {
+        container.classList.remove('page-enter');
+        // Force reflow to restart CSS animation
+        void container.offsetWidth;
+        container.classList.add('page-enter');
     }
 
-    function getIdFromHash(hash) {
-        return (hash && hash.startsWith('#')) ? hash.slice(1) : 'overview';
-    }
+    // Initial trigger on load (in case markup or navigation flow doesn’t apply class early)
+    retriggerFade();
 
-    activate(getIdFromHash(window.location.hash));
-
-    nav.addEventListener('click', (e) => {
-        const link = e.target.closest('a');
-        if (!link || !nav.contains(link)) return;
-        e.preventDefault();
-        const id = link.getAttribute('href').replace('#', '');
-        history.pushState(null, '', `#${id}`);
-        activate(id);
-    });
-
-    window.addEventListener('hashchange', () => {
-        activate(getIdFromHash(window.location.hash));
-    });
-})();
-
-// Replace the floating quick menu script with scroll-to-top behavior
-(function () {
-    const btn = document.getElementById('scrollTop');
-    if (!btn) return;
-    const showAt = 300;
-
-    function onScroll() {
-        if (window.scrollY > showAt) {
-            btn.classList.remove('hide');
-        } else {
-            btn.classList.add('hide');
-        }
-    }
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-
-    btn.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Re-trigger when coming back via back/forward cache
+    window.addEventListener('pageshow', function(e) {
+        if (e.persisted) retriggerFade();
     });
 })();
 </script>
-</body>
-</html>
