@@ -9,9 +9,13 @@
 
 <body>
 <!-- Topbar: replace emoji with proper SVG icons in the theme toggle button -->
+<!-- Topbar -->
 <header class="topbar" aria-label="Page header">
-    <div class="brand">Mobile Phone Enforcement Dashboard</div>
-    <!--  -->
+    <a href="index.html" class="brand-logo" aria-label="Go to Dashboard">
+        <img src="assets/image/DoITRDCSA_logo_inline_reversed.png" alt="DoITRDCSA logo">
+    </a>
+    <div class="brand">Mobile Phone Use</div>
+    <div class="topbar-right" aria-hidden="true"></div>
 </header>
 
 <nav class="primary-nav" role="tablist" aria-label="Section navigation">
@@ -21,10 +25,9 @@
     <a id="tab-data-prep" href="#data-prep" role="tab" aria-controls="data-prep" aria-selected="false">Data Cleaning</a>
     <a id="tab-data-exploration" href="#data-exploration" role="tab" aria-controls="data-explore" aria-selected="false">Data Exploration</a>
     <a id="tab-glossary" href="#glossary" role="tab" aria-controls="glossary" aria-selected="false">Glossary</a>
-    <a id="tab-faq" href="#faq" role="tab" aria-controls="faq" aria-selected="false">FAQ</a>
 </nav>
 
-<section class="doc-container">
+<section class="doc-container page-enter">
     <article id="overview" class="section-panel active" role="tabpanel" aria-labelledby="tab-overview">
         <header class="section-header">
             <h1>Documentation</h1>
@@ -40,13 +43,13 @@
                 <ul class="bullet">
                     <li>Data sources from Australian road safety agencies and national yearbooks.</li>
                     <li>Processed datasets designed for consistent state-level comparisons.</li>
-                    <li>Methodology, data cleaning pipeline, and key metric definitions.</li>
+                    <li>Data cleaning and exploration pipelines, and key metric definitions.</li>
                 </ul>
             </div>
             <div class="card">
                 <h3>Quick Links</h3>
                 <p><a href="index.html">Dashboard</a> · <a href="about.html">About</a></p>
-                <p>Use the tabs above, or the floating menu to jump between sections.</p>
+                <p>Use the tabs above to jump between sections.</p>
             </div>
         </div>
     </article>
@@ -404,27 +407,6 @@
         </div>
     </article>
 
-    <article id="faq" class="section-panel" role="tabpanel" aria-labelledby="tab-faq">
-        <header class="section-header">
-            <h2>FAQ</h2>
-        </header>
-
-        <div class="grid grid-2">
-            <div class="card">
-                <h3>What time range is covered?</h3>
-                <p>Data sources generally cover <strong>2008–2024</strong>. Some jurisdictions may have more detailed coverage.</p>
-            </div>
-            <div class="card">
-                <h3>How are fine rates computed?</h3>
-                <p>Rates are computed using transparent formulas, usually normalised by a denominator like licences. See Methodology.</p>
-            </div>
-            <div class="card">
-                <h3>Are there limitations?</h3>
-                <p>Differences in reporting practices across jurisdictions may affect comparability. We document assumptions where relevant.</p>
-            </div>
-        </div>
-    </article>
-
     <div class="button-row">
         <a href="index.html" class="btn back">← Back to Dashboard</a>
         <a href="about.html" class="btn about">About Us →</a>
@@ -438,68 +420,29 @@
     </svg>
 </button>
 
+<script src="js/documentation.js"></script>
+</body>
+</html>
+
+<!-- Re-trigger page fade animation on BFCache restores -->
 <script>
-// Enable progressive enhancement styles
-document.body.classList.add('js');
+(function(){
+    var container = document.querySelector('.doc-container');
+    if (!container) return;
 
-// Tabs + animated section transitions (kept and now run reliably)
-(function () {
-    const nav = document.querySelector('.primary-nav');
-    if (!nav) return;
-
-    const tabs = Array.from(nav.querySelectorAll('a'));
-    const panels = Array.from(document.querySelectorAll('.section-panel'));
-
-    function activate(id) {
-        panels.forEach(p => p.classList.toggle('active', p.id === id));
-        tabs.forEach(t => {
-            const selected = t.getAttribute('href') === `#${id}`;
-            t.setAttribute('aria-selected', selected ? 'true' : 'false');
-            t.classList.toggle('current', selected);
-        });
+    function retriggerFade() {
+        container.classList.remove('page-enter');
+        // Force reflow to restart CSS animation
+        void container.offsetWidth;
+        container.classList.add('page-enter');
     }
 
-    function getIdFromHash(hash) {
-        return (hash && hash.startsWith('#')) ? hash.slice(1) : 'overview';
-    }
+    // Initial trigger on load (in case markup or navigation flow doesn’t apply class early)
+    retriggerFade();
 
-    activate(getIdFromHash(window.location.hash));
-
-    nav.addEventListener('click', (e) => {
-        const link = e.target.closest('a');
-        if (!link || !nav.contains(link)) return;
-        e.preventDefault();
-        const id = link.getAttribute('href').replace('#', '');
-        history.pushState(null, '', `#${id}`);
-        activate(id);
-    });
-
-    window.addEventListener('hashchange', () => {
-        activate(getIdFromHash(window.location.hash));
-    });
-})();
-
-// Replace the floating quick menu script with scroll-to-top behavior
-(function () {
-    const btn = document.getElementById('scrollTop');
-    if (!btn) return;
-    const showAt = 300;
-
-    function onScroll() {
-        if (window.scrollY > showAt) {
-            btn.classList.remove('hide');
-        } else {
-            btn.classList.add('hide');
-        }
-    }
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-
-    btn.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Re-trigger when coming back via back/forward cache
+    window.addEventListener('pageshow', function(e) {
+        if (e.persisted) retriggerFade();
     });
 })();
 </script>
-</body>
-</html>

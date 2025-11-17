@@ -9,6 +9,22 @@
     --accent-2: #f0b429;
     --border: #e6eaf2;
     --shadow: 0 8px 24px rgba(0,0,0,0.10);
+    /* Discover More: accessible CTA variables */
+    --cta-primary: #075db3;           /* accessible blue (~7.2:1 contrast vs white text) */
+    --cta-on-primary: #ffffff;        /* button text color */
+    --cta-bg: #003e75;                /* section card base */
+    --cta-gradient: linear-gradient(135deg, rgba(7,93,179,0.92) 0%, rgba(0,62,117,0.92) 100%);
+    --cta-ring: rgba(255,255,255,0.40);
+    /* accessible brand palette additions for audience icons */
+    --aud-gov: #0d6efd;        /* blue */
+    --aud-agency: #d63384;     /* pink/red */
+    --aud-research: #198754;   /* green */
+}
+
+html {
+  scroll-behavior: smooth;
+  width: 100vw;
+  /* height: 100vh; */
 }
 
 body {
@@ -16,9 +32,22 @@ body {
   padding: 0;
   font-family: "Segoe UI", Arial, sans-serif;
   scroll-snap-type: y mandatory;
-  overflow-y: scroll;
+  /* allow vertical scrolling for snap; prevent bounce overscroll */
+  overflow: hidden;
   height: 100vh;
+  overscroll-behavior-y: none;
+  overscroll-behavior-x: none;
   background: white;
+}
+
+/* Generic snap section: fills viewport and snaps each page */
+.snap-section {
+  height: 100vh;
+  width: 100vw;
+  scroll-snap-stop: always;
+  /* enable internal scrolling when content exceeds 100vh */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ===== SECTIONS & LAYOUT ===== */
@@ -27,7 +56,7 @@ body {
 .panel {
   height: 100vh;
   min-height: 100vh;
-  width: 100%;
+  width: 100vw; /* ensure full viewport width */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -43,15 +72,18 @@ body {
 #background-section {
     padding: 60px 30px 20px;
     min-height: 100vh;
+    width: 100vw; /* ensure full viewport width */
     position: relative;
     box-sizing: border-box;
     scroll-snap-align: start;
+    background-color: #f5f8fc;
 }
 
 /* Charts Section */
 #charts-section {
   height: 100vh;
   min-height: 100vh;
+  width: 100vw; /* ensure full viewport width */
   scroll-snap-align: end;
   position: relative;
   display: flex;
@@ -67,13 +99,15 @@ body {
 .viz-section {
   height: 100vh;
   min-height: 100vh;
+  width: 100vw; /* ensure full viewport width */
   scroll-snap-align: start;
   position: relative;
   display: flex;
   align-items: center;
   box-sizing: border-box;
   padding: 60px 20px 0;
-  overflow: hidden;
+  /* allow internal scroll for overflowing content */
+  overflow-y: auto;
 }
 
 /* Main grid container for 70/30 split */
@@ -364,16 +398,259 @@ body {
   transform: scale(1.05);
 }
 
-/* Center road image */
-.header-img {
-  width: 180px;
-  height: auto;
-  display: block;
-  margin: 0 auto 22px;
-  border-radius: 10px;
-  opacity: 0.95;
-  transition: 0.3s;
+
+/* ===== TYPOGRAPHY ===== */
+
+/* Headings */
+h1 {
+  font-size: 42px;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 14px;
+  color: #111;
 }
+
+.subtitle {
+  font-size: 18px;
+  color: #555;
+  margin-bottom: 40px;
+}
+
+/* Section Titles */
+h2 {
+  font-size: 34px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+/* Background section titles */
+#background-section .bg-title {
+    text-align: center;
+    font-size: 34px;
+    margin-bottom: 25px;
+    font-weight: 700;
+}
+
+#background-section .audience-title {
+    font-size: 22px;
+    margin: 20px 0 20px;
+    text-align: center;
+}
+
+/* End section title */
+.end-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 26px;
+  color: rgb(0, 0, 0);
+}
+
+/* Text paragraph */
+.text-block {
+  max-width: 700px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #333;
+  margin-bottom: 35px;
+  text-align: left;
+}
+
+/* ===== BUTTONS ===== */
+
+/* Scroll Button */
+.scroll-btn {
+  background: black;
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  font-size: 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.35s;
+  animation: bounce 1.8s infinite;
+}
+.scroll-btn:hover {
+  background: #222;
+  transform: translateY(3px) scale(1.04);
+}
+
+/* Back Button */
+.back-btn {
+  position: absolute;
+  top: 40px;
+  right: 40px;
+  background: #f2f2f2;
+  color: #111;
+  border: none;
+  padding: 8px 18px;
+  font-size: 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.25s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  z-index: 100;
+}
+
+.back-btn:hover {
+  background: #e7e7e7;
+  transform: translateY(-2px);
+}
+
+/* Background section: refined styling + animation */
+@keyframes bgBackBtnEnter {
+  from { opacity: 0; transform: translateY(-8px); }
+  60%  { opacity: 1; transform: translateY(2px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+#background-section .back-btn {
+  position: absolute;
+  right: 25px;
+  top: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #ffffff;
+  color: #0b3b75; /* brand fallback */
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 200ms ease, background 160ms ease, color 160ms ease;
+}
+
+#background-section .back-btn i {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* Animate when section enters view */
+#background-section.in-view .back-btn {
+  animation: bgBackBtnEnter 560ms ease-out 120ms both;
+}
+
+/* Hover + focus states */
+#background-section .back-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 20px rgba(0,0,0,0.12);
+  background: #f9fafb;
+}
+
+#background-section .back-btn:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 4px rgba(42,157,143,0.35), 0 12px 20px rgba(0,0,0,0.12);
+  border-color: rgba(42,157,143,0.40);
+}
+
+/* Mobile tweaks */
+@media (max-width: 768px) {
+  #background-section .back-btn {
+    top: 12px;
+    right: 12px;
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  #background-section.in-view .back-btn {
+    animation: none !important;
+  }
+}
+
+/* Scroll button in description */
+.description-container .scroll-btn {
+  align-self: center;
+  margin-top: auto;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  flex-shrink: 0;
+}
+
+.description-container .scroll-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ===== CARDS & GRIDS ===== */
+
+/* Audience grid */
+#background-section .audience-grid {
+    display: flex;
+    gap: 18px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Audience cards */
+#background-section .audience-card {
+    background: #fff;
+    width: 280px;
+    padding: 18px 16px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+#background-section .audience-icon {
+    font-size: 32px;
+    margin-bottom: 6px;
+}
+
+#background-section .audience-card h4 {
+    font-size: 18px;
+    margin-bottom: 6px;
+    font-weight: 700;
+}
+
+#background-section .audience-card p {
+    font-size: 16px;
+    color: #444;
+    line-height: 1.45;
+}
+
+
+.panel > * {
+  animation: fadeIn 1s ease-in-out;
+}
+
+/* Logo fade-in */
+@keyframes fadeInLogo {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Bounce Animation */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(7px); }
+}
+
+/* ===== HEADER & LOGO ===== */
+
+/* Top Left Government Logo */
+.top-left-logo {
+  position: fixed;
+  top: 20px;
+  left: 25px;
+  width: 250px;
+  opacity: 0.85;
+  filter: brightness(0);
+  transition: 0.3s ease;
+  z-index: 1000;
+  animation: fadeInLogo 1.5s ease;
+}
+
+.top-left-logo:hover {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
 
 /* ===== TYPOGRAPHY ===== */
 
@@ -433,7 +710,7 @@ h2 {
 
 /* Background text */
 #background-section .background-text {
-    max-width: 750px;
+    max-width: 1000px;
     margin: 0 auto 30px;
     text-align: center;
 }
@@ -485,18 +762,6 @@ h2 {
   transform: translateY(-2px);
 }
 
-/* Background section back button */
-#background-section .back-btn {
-    position: absolute;
-    right: 25px;
-    top: 15px;
-    padding: 6px 14px;
-    background: #f1f1f1;
-    border-radius: 8px;
-    border: none;
-    font-size: 14px;
-    cursor: pointer;
-}
 
 /* Scroll button in description */
 .description-container .scroll-btn {
@@ -537,82 +802,6 @@ h2 {
     margin-bottom: 6px;
 }
 
-#background-section .audience-card h4 {
-    font-size: 16px;
-    margin-bottom: 6px;
-    font-weight: 700;
-}
-
-#background-section .audience-card p {
-    font-size: 14px;
-    color: #444;
-    line-height: 1.45;
-}
-
-/* CTA Box */
-.cta-box {
-  width: min(900px, 92%);
-  background: #003e75;
-  border-radius: 18px;
-  padding: 40px 32px;
-  text-align: center;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-  color: white;
-}
-
-/* Button Row */
-.cta-actions {
-  display: flex;
-  justify-content: center;
-  gap: 28px;
-  margin: 8px 0 28px;
-}
-
-/* Main purple buttons */
-.cta-btn {
-  background: #8b5cf6;
-  color: white;
-  border: none;
-  padding: 14px 26px;
-  border-radius: 12px;
-  cursor: pointer;
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-  transition: 0.2s ease;
-  text-decoration: none !important;
-}
-
-.cta-btn:hover {
-  transform: translateY(-2px);
-  opacity: 0.95;
-}
-
-/* Icons */
-.cta-icon {
-  font-size: 18px;
-}
-
-/* Back to Top button */
-.cta-top-btn {
-  margin-bottom: 18px;
-  background: transparent;
-  border: 2px solid #ffffffaa;
-  padding: 10px 22px;
-  border-radius: 10px;
-  color: white;
-  cursor: pointer;
-  font-size: 15px;
-  transition: 0.25s;
-}
-
-.cta-top-btn:hover {
-  background: white;
-  color: #003e75;
-}
-
 /* ===== FOOTER ===== */
 
 /* FOOTER stays inside section and always at bottom */
@@ -647,7 +836,7 @@ h2 {
 /* Footer meta */
 .cta-meta {
   margin: 4px 0 0;
-  font-size: 14px;
+  font-size: 16px;
   opacity: 0.9;
 }
 
@@ -859,6 +1048,201 @@ h2 {
   background: rgba(255, 255, 255, 0.5);
 }
 
+/* Section wrapper */
+.discover {
+  /* matches the light gray in the reference */
+  background: #f5f8fc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 14px;
+  padding: 40px 20px 0; /* keep top padding consistent with other sections */
+}
+
+/* Heading and subtitle */
+.discover-title {
+  font-size: 40px;            /* close to visual size in screenshot */
+  font-weight: 800;           /* strong emphasis */
+  color: #0f172a;             /* deep slate */
+  margin: 0 0 6px;
+}
+
+.discover-subtitle {
+  max-width: 640px;
+  font-size: 18px;
+  line-height: 1.6;
+  color: #6b7280;             /* muted gray */
+  margin: 0 auto 18px;
+}
+
+/* Cards grid */
+.discover-grid {
+  width: min(940px, 92%);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
+  gap: 20px;
+  align-items: start;
+  justify-content: center;
+}
+
+/* Card */
+.discover-card {
+  display: grid;
+  grid-template-columns: auto 1fr; /* icon left, content right */
+  gap: 16px;
+  align-items: start;
+  text-align: left;
+  text-decoration: none !important;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 18px 18px;
+  box-shadow: 0 2px 6px rgba(16, 24, 40, 0.06); /* subtle elevation */
+  color: #111;
+  transition: transform 150ms ease, box-shadow 200ms ease, border-color 200ms ease;
+  will-change: transform;
+}
+
+.discover-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(16, 24, 40, 0.10);
+  border-color: #e3e6ee;
+}
+
+.discover-card:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(43, 89, 195, 0.25); /* accessible focus ring */
+}
+
+.discover-image {
+  width: 100%;
+  height: auto;
+  max-width: 150px;
+  /* margin-bottom: 20px; */
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(16, 24, 40, 0.06);
+}
+
+/* Left icon badge */
+.card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: #eaf2ff;       /* soft brand-tinted background */
+  color: #2b59c3;            /* brand blue for icon */
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 1px #dbe6ff;
+}
+
+.card-icon .bi {
+  font-size: 20px;
+  line-height: 1;
+}
+
+/* Card content */
+.card-title {
+  margin: 2px 0 4px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.card-desc {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #4b5563;
+}
+
+/* Pill Back-to-Top */
+.cta-top-btn.pill {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 20px;
+  gap: 10px;
+  background: #e5e7eb;
+  color: #111;
+  border: 1px solid #d1d5db;
+  padding: 10px 20px;
+  border-radius: 9999px;
+  cursor: pointer;
+  font-size: 15px;
+  box-shadow: 0 2px 6px rgba(16, 24, 40, 0.08);
+  transition: background-color 180ms ease, transform 120ms ease, box-shadow 180ms ease;
+}
+
+.cta-top-btn.pill:hover {
+  background: #eaecf0;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(16, 24, 40, 0.12);
+}
+
+.cta-top-btn.pill:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(43, 89, 195, 0.25);
+}
+
+/* Small circular icon bubble inside pill */
+.pill-icon {
+  /* width: 36px;
+  height: 36px; */
+  /* border-radius: 9999px; */
+  display: grid;
+  place-items: center;
+  /* background: #d1d5db; */
+  color: #111;
+  font-size: 40px;
+}
+
+.pill-icon .bi {
+  font-size: 22px;
+}
+
+/* Responsive breakpoints (match layout in reference) */
+@media (max-width: 768px) {
+  .discover-grid { grid-template-columns: 1fr; }
+  .discover-title { font-size: 32px; }
+  .discover-subtitle { font-size: 15px; }
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .discover-card,
+  .cta-top-btn.pill { transition: none; }
+}
+/* ===== Discover More: jumping animation for Back to Top ===== */
+/* Jump animation: two quick lifts, then settle */
+@keyframes jumpY {
+  0%   { transform: translateY(0); }
+  22%  { transform: translateY(-8px); }
+  36%  { transform: translateY(0); }
+  52%  { transform: translateY(-4px); }
+  68%  { transform: translateY(0); }
+  100% { transform: translateY(0); }
+}
+
+/* Apply jump to whole pill button */
+.cta-top-btn.pill {
+  animation: jumpY 2.6s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Disable fade-item animations; keep content static */
+.discover .fade-item {
+  opacity: 1;
+  transform: none;
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .cta-top-btn.pill { animation: none !important; }
+}
+/* ===== End Discover More animation updates ===== */
+
 /* ===== LEGACY STYLES (Hidden/Deprecated) ===== */
 
 /* Hide old card styles that conflict with new layout */
@@ -874,6 +1258,56 @@ h2 {
 .viz-placeholder {
   display: none;
 }
+
+/* Ensure Background section can position centered button */
+#background-section {
+    position: relative;
+}
+
+/* Centered Scroll button variant for Background section */
+#background-section .scroll-btn.center {
+    position: absolute;
+    left: 45%;
+    bottom: 10%;
+    transform: translateX(-50%);
+    top: auto;
+    right: auto;
+    z-index: 5;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px 18px;
+    border-radius: 999px;
+    background: var(--brand);
+    color: #fff;
+    border: none;
+    box-shadow: 0 10px 18px rgba(0,0,0,0.12);
+}
+#background-section .scroll-btn.center i {
+    font-size: 22px;
+    line-height: 1;
+}
+
+/* Audience icon styling with Bootstrap icons */
+.audience-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.06);
+}
+.audience-icon i {
+    font-size: 22px;
+}
+
+/* Icon color variants */
+.audience-icon.icon-gov { color: var(--aud-gov); }
+.audience-icon.icon-agency { color: var(--aud-agency); }
+.audience-icon.icon-research { color: var(--aud-research); }
 
 /* Optional: dark mode inheritance if you add a toggle later */
 body[data-theme="dark"] {
