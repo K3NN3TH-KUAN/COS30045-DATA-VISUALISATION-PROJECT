@@ -5,14 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Us</title>
     <link rel="stylesheet" href="css/about.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 
 <body>
+<header class="topbar" aria-label="Page header">
+    <a href="index.html" class="brand-logo" aria-label="Go to Dashboard">
+        <img src="assets/image/DoITRDCSA_logo_inline_reversed.png" alt="DoITRDCSA logo">
+    </a>
+    <div class="brand">Mobile Phone Use</div>
+    <div class="topbar-right" aria-hidden="true"></div>
+</header>
 
-
-
-<section id="about-section">
-
+<section id="about-section" class="about-container page-enter">
     <h1 class="about-title">About Us</h1>
 
     <div class="about-intro">
@@ -26,13 +31,30 @@
         <p>
             This website visualises mobile phone enforcement trends in Australia from 2008–2024  
             using <strong>D3.js</strong>. Our goal is to transform raw enforcement data into clear,  
-            interactive, and meaningful insights that help users understand:
+            interactive, and meaningful insights that help users:
         </p>
 
-        <ul class="about-list">
-            <li>📌 Trends in police vs. camera detection</li>
-            <li>📌 Differences in enforcement among Australian states</li>
-            <li>📌 Overall impact of automated enforcement technologies</li>
+        <ul class="about-list" role="list" aria-label="Key capabilities">
+            <li class="about-item" role="listitem" tabindex="0">
+                <i class="bi bi-graph-up icon" aria-hidden="true"></i>
+                <span class="item-text">Compare Enforcement Trends Across Jurisdiction</span>
+            </li>
+            <li class="about-item" role="listitem" tabindex="0">
+                <i class="bi bi-camera icon" aria-hidden="true"></i>
+                <span class="item-text">Analyse the Impact of Detection Methods Over Time</span>
+            </li>
+            <li class="about-item" role="listitem" tabindex="0">
+                <i class="bi bi-shield icon" aria-hidden="true"></i>
+                <span class="item-text">Identify Outliers and High-Performance Jurisdictions</span>
+            </li>
+            <li class="about-item" role="listitem" tabindex="0">
+                <i class="bi bi-calendar-week icon" aria-hidden="true"></i>
+                <span class="item-text">Focus on Specific Time Periods for Coordinated Analysis</span>
+            </li>
+            <li class="about-item" role="listitem" tabindex="0">
+                <i class="bi bi-search icon" aria-hidden="true"></i>
+                <span class="item-text">Explore Detailed Data On-Demand for specific Data Points</span>
+            </li>
         </ul>
 
         <p>
@@ -43,40 +65,56 @@
 
     <h2 class="team-heading">Our Team</h2>
 
-    <div class="team-wrapper">
-
-        <div class="team-card">
+    <div class="team-grid">
+        <article class="card team-card">
             <img src="assets/image/voong.png" class="team-photo" alt="Voong Zhe Hong">
-            <h3>Voong Zhe Hong</h3>
+            <h3 class="team-name">Voong Zhe Hong</h3>
             <p class="role">Developer</p>
             <p class="degree">Bachelor of Computer Science — AI</p>
-        </div>
+        </article>
 
-        <div class="team-card">
-             <img src="assets/image/kenneth.jpg" class="team-photo" alt="Kenneth">
-            <h3>Kenneth Yang Sheng KUAN</h3>
+        <article class="card team-card">
+            <img src="assets/image/kenneth.jpg" class="team-photo" alt="Kenneth">
+            <h3 class="team-name">Kenneth Yang Sheng KUAN</h3>
             <p class="role">Project Manager</p>
-            <p class="degree">Bachelor of Computer Science — AI</p>
-        </div>
+            <p class="degree">Bachelor of Computer Science — Cybersecurity</p>
+        </article>
 
-        <div class="team-card">
-            <img src="assets/alvin.jpg" class="team-photo" alt="Alvin">
-            <h3>Alvin Yi Tung TAN</h3>
+        <article class="card team-card">
+            <img src="assets/image/Alvin.jpeg" class="team-photo" alt="Alvin">
+            <h3 class="team-name">Alvin Yi Tung TAN</h3>
             <p class="role">Developer</p>
-            <p class="degree">Bachelor of Computer Science — AI</p>
-           
-        </div>
-
-    </div>
-     <!--  BACK BUTTON  -->
-    <div class="about-back-wrapper">
-        <a href="index.html" class="about-back-btn">⬅ 📊Back to Dashboard</a>
-        <a href="documentation.html" class="about-back-btn">
-        ➜📄 View Documentation
-    </a>
+            <p class="degree">Bachelor of Computer Science — Cybersecurity</p>
+        </article>
     </div>
 
+    <div class="about-actions">
+        <a href="index.html" class="btn back">← Back to Dashboard</a>
+        <a href="documentation.html" class="btn about">View Documentation →</a>
+    </div>
 </section>
 
+<!-- Re-trigger page fade animation on initial load and BFCache restores -->
+<script>
+(function(){
+    var container = document.querySelector('.about-container');
+    if (!container) return;
+
+    function retriggerFade() {
+        container.classList.remove('page-enter');
+        // Force reflow to restart CSS animation
+        void container.offsetWidth;
+        container.classList.add('page-enter');
+    }
+
+    // Trigger once on load
+    retriggerFade();
+
+    // Re-trigger when returning via back/forward cache
+    window.addEventListener('pageshow', function(e) {
+        if (e.persisted) retriggerFade();
+    });
+})();
+</script>
 </body>
 </html>

@@ -1,340 +1,299 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mobile Phone Use Enforcement in Australia</title>
-    <link rel="stylesheet" href="css/style.css">
-   
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Mobile Phone Use Enforcement in Australia</title>
+        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    </head>
 
-</head>
+    <body>
+        <!-- TOP LEFT LOGO -->
+        <img src="assets/image/DoITRDCSA_logo_inline_reversed.png" alt="Government Logo" class="top-left-logo">
 
-<body>
-     <!-- TOP LEFT LOGO -->
-    <img src="assets/image/DoITRDCSA_logo_inline_reversed.png" alt="Government Logo" class="top-left-logo">
+        <!-- Landing Page -->
+        <section class="panel snap-section" id="section1">
 
+            <!-- LOGO -->
+            <img src="assets/image/road.jpeg" alt="Road Image" class="header-img">
 
-<!-- SECTION 1 -->
-<section class="panel" id="section1">
+            <h1>Mobile Phone Use Enforcement in Australia</h1>
+            <p class="subtitle">How detection methods and enforcement changed from 2008–2024</p>
 
-    <!-- LOGO -->
-    <img src="assets/image/road.jpeg" alt="Road Image" class="header-img">
-
-    <h1>Mobile Phone Use Enforcement in Australia</h1>
-    <p class="subtitle">How detection methods and enforcement changed from 2008–2024</p>
-
-    <button class="scroll-btn" onclick="scrollNext()">Scroll Down ↓</button>
-
-    <div class="footer-bar">
-        <span>@COS30045 Data Visualisation Project</span>
-        <span>Team Member: Voong Zhe Hong, Alvin, Kenneth</span>
-    </div>
-</section>
-
-
-<!-- SECTION 2 -->
-<section id="background-section">
-
-    <!-- Back Button -->
-    <button class="back-btn" onclick="scrollPrev()">⬆ Back</button>
-
-    <h2 class="bg-title">Background</h2>
-
-    <div class="background-text">
-        <p>
-            Australia has long struggled with mobile-phone use while driving. Until 2020, 
-            enforcement relied heavily on police officers manually observing drivers — 
-            a method limited by visibility and workforce capacity.
-        </p>
-        <p>
-            Since 2020, AI-enabled mobile detection cameras have significantly improved 
-            accuracy and enabled consistent, round-the-clock enforcement — most notably 
-            in New South Wales.
-        </p>
-    </div>
-
-    <h3 class="audience-title">Who Uses This Dashboard?</h3>
-
-    <div class="audience-grid">
-        <div class="audience-card">
-            <div class="audience-icon">🏛️</div>
-            <h4>Government Policymakers</h4>
-            <p>Assess enforcement outcomes and inform legislation updates.</p>
-        </div>
-
-        <div class="audience-card">
-            <div class="audience-icon">🚓</div>
-            <h4>Transport Safety Agencies</h4>
-            <p>Monitor compliance trends and identify high-risk regions.</p>
-        </div>
-
-        <div class="audience-card">
-            <div class="audience-icon">📊</div>
-            <h4>Researchers & Analysts</h4>
-            <p>Study behavioural trends and evaluate enforcement effectiveness.</p>
-        </div>
-    </div>
-
-    <!-- SCROLL BUTTON -->
-    <button class="scroll-btn" onclick="scrollNext()">Scroll Down ↓</button>
-
-    <!-- FOOTER BAR (MUST BE INSIDE SECTION!!) -->
-    <div class="footer-bar">
-        <span>@COS30045 Data Visualisation Project</span>
-        <span>Team Member: Voong Zhe Hong, Alvin, Kenneth</span>
-    </div>
-</section>
-
-<!-- New Blank Section A -->
-<section class="viz-section layout-card-left" id="blank1-section">
-    <button class="back-btn" onclick="scrollPrev()">⬆ Back</button>
-    <div class="viz-grid">
-        <!-- Data card on the left (revert design, keep color) -->
-        <aside class="viz-card vivid">
-            <h2>Trend in Enforcement Over Time</h2>
-            <ul>
-                <li>Camera-detected fines increased sharply after 2020.</li>
-                <li>Police-issued fines dropped over the same period.</li>
-                <li>Shift from manual to AI-based detection methods.</li>
-            </ul>
             <button class="scroll-btn" onclick="scrollNext()">Scroll Down ↓</button>
-        </aside>
-        <!-- Chart (interactive) on the right -->
-        <div class="viz-chart">
-            <div class="viz-controls compact">
-                <label>Start <select id="year1-start"></select></label>
-                <label>End <select id="year1-end"></select></label>
-                <div class="btn-group">
-                    <button id="btn-police" class="toggle active">Police</button>
-                    <button id="btn-camera" class="toggle active">Camera</button>
+
+            <div class="footer-bar">
+                <span>@COS30045 Data Visualisation Project</span>
+                <span>Voong Zhe Hong, Alvin, Kenneth</span>
+            </div>
+        </section>
+
+
+        <!-- Background Section -->
+        <section id="background-section" class="snap-section">
+            <button class="back-btn" onclick="scrollPrev()" aria-label="Back to previous section">
+                <i class="bi bi-arrow-up-short" aria-hidden="true"></i>
+                <span>Back</span>
+            </button>
+
+            <h2 class="bg-title">Background</h2>
+
+            <div class="background-text">
+                <p>
+                    For a long time, Australia has had a problem with people using mobile phones while driving. Until 2020, the main way to catch offenders was for police officers to spot them visually, which was difficult and limited by their numbers and what they could see.
+                </p>
+                <p>
+                    This changed in 2020 with the introduction of AI-powered detection cameras. This new technology can spot phone use much more accurately and consistently, day and night. This has been a game-changer for enforcement, especially in states like New South Wales.
+                </p>
+            </div>
+
+            <h3 class="audience-title">Who Uses This Dashboard?</h3>
+
+            <div class="audience-grid">
+                <div class="audience-card">
+                    <div class="audience-icon icon-gov" aria-hidden="true">
+                        <i class="bi bi-bank"></i>
+                    </div>
+                    <h4>Government Policymakers</h4>
+                    <p>Assess enforcement outcomes and inform legislation updates.</p>
+                </div>
+
+                <div class="audience-card">
+                    <div class="audience-icon icon-agency" aria-hidden="true">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <h4>Transport Safety Agencies</h4>
+                    <p>Monitor compliance trends and identify high-risk regions.</p>
+                </div>
+
+                <div class="audience-card">
+                    <div class="audience-icon icon-research" aria-hidden="true">
+                        <i class="bi bi-bar-chart-line"></i>
+                    </div>
+                    <h4>Researchers & Analysts</h4>
+                    <p>Study behavioural trends and evaluate enforcement effectiveness.</p>
                 </div>
             </div>
-            <div class="chart-card">
-                <div id="chart" class="chart-host"></div>
-            </div>
-        </div>
-    </div>
-    <div class="footer-bar">
-        <span>@COS30045 Data Visualisation Project</span>
-        <span>Team Member: Voong Zhe Hong, Alvin, Kenneth</span>
-    </div>
-</section>
 
-<!-- New Blank Section B -->
-<section class="viz-section" id="blank2-section">
-    <button class="back-btn" onclick="scrollPrev()">⬆ Back</button>
-    <div class="viz-grid">
-        <!-- Graph (interactive) on the left -->
-        <div class="viz-chart">
-            <div class="viz-controls compact">
-                <label>Start <select id="year2-start"></select></label>
-                <label>End <select id="year2-end"></select></label>
-            </div>
-            <div class="chart-card">
-                <div id="chart2" class="chart-host"></div>
-            </div>
-        </div>
-        <!-- Data card on the right (revert design, keep color) -->
-        <aside class="viz-card vivid">
-            <h2>Enforcement Strength by State</h2>
-            <ul>
-                <li>NSW and QLD enforce mobile phone laws the most.</li>
-                <li>ACT shows high enforcement relative to peers.</li>
-                <li>TAS, NT, and WA trend lower across years.</li>
-            </ul>
-            <button class="scroll-btn" onclick="scrollNext()">Scroll Down ↓</button>
-        </aside>
-    </div>
-    <div class="footer-bar">
-        <span>@COS30045 Data Visualisation Project</span>
-        <span>Team Member: Voong Zhe Hong, Alvin, Kenneth</span>
-    </div>
-</section>
+            <!-- Centered scroll button for Background section -->
+            <button class="scroll-btn center" onclick="scrollNext()" aria-label="Scroll Down">
+                <i class="bi bi-arrow-down-short" aria-hidden="true"></i>
+                <span>Scroll Down</span>
+            </button>
 
-<!-- New Blank Section C -->
-<section class="viz-section layout-vertical" id="blank3-section">
-    <button class="back-btn" onclick="scrollPrev()">⬆ Back</button>
-    <div class="viz-grid">
-        <!-- Graph (interactive) on top -->
-        <div class="viz-chart">
-            <div class="viz-controls compact">
-                <label>Year <select id="year3-select"></select></label>
-                <div class="btn-group">
-                    <button id="zoom-out" class="toggle" aria-label="Zoom out">−</button>
-                    <button id="zoom-in" class="toggle" aria-label="Zoom in">+</button>
+            <div class="footer-bar">
+                <span>@COS30045 Data Visualisation Project</span>
+                <span>Voong Zhe Hong, Alvin, Kenneth</span>
+            </div>
+        </section>
+
+        <!-- Visualisation 1 Section -->
+        <section class="viz-section snap-section" id="blank1-section">
+            <button class="back-btn" onclick="scrollPrev()">⬆ Back</button>
+            
+            <div class="viz-grid">
+                <!-- Chart area (70% on RIGHT for section 3) -->
+                <div class="viz-chart">
+                    <div class="chart-card">
+                        <div id="chart" class="chart-host"></div>
+                    </div>
+                </div>
+                
+                <!-- Controls and info area (30% on LEFT for section 3) -->
+                <div class="viz-controls-info">
+                    <!-- Filter controls at top -->
+                    <div class="filter-container">
+                        <div class="viz-controls compact">
+                            <label>Start <select id="year1-start"></select></label>
+                            <label>End <select id="year1-end"></select></label>
+                            <div class="btn-group">
+                                <button id="btn-police" class="toggle active">Police</button>
+                                <button id="btn-camera" class="toggle active">Camera</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Description container at bottom -->
+                    <aside class="description-container">
+                        <h2>Trend in Enforcement Over Time</h2>
+                        <ul>
+                            <li>Camera-detected fines increased sharply after 2020.</li>
+                            <li>Police-issued fines dropped over the same period.</li>
+                            <li>Shift from manual to AI-based detection methods.</li>
+                        </ul>
+                        <button class="scroll-btn" onclick="scrollNext()">Scroll Down ↓</button>
+                    </aside>
                 </div>
             </div>
-            <div class="chart-card">
-                <div id="chart3" class="chart-host"></div>
+            
+            <div class="footer-bar">
+                <span>@COS30045 Data Visualisation Project</span>
+                <span>Voong Zhe Hong, Alvin, Kenneth</span>
             </div>
-        </div>
-        <!-- Data card below (revert design, keep color) -->
-        <aside class="viz-card vivid">
-            <h2>Effectiveness of Enforcement Methods</h2>
-            <ul>
-                <li>ACT and NSW have the highest fines per 10,000 drivers.</li>
-                <li>Earlier and wider camera deployment in these states.</li>
-                <li>Camera enforcement appears more effective than police-only.</li>
-            </ul>
-            <button class="scroll-btn" onclick="scrollNext()">Scroll Down ↓</button>
-        </aside>
-    </div>
-    <div class="footer-bar">
-        <span>@COS30045 Data Visualisation Project</span>
-        <span>Team Member: Voong Zhe Hong, Alvin, Kenneth</span>
-    </div>
-</section>
-<!-- END SECTION -->
+        </section>
 
-
-<!-- New Blank Section A -->
-<section class="viz-section layout-card-left" id="blank1-section">
-    <button class="back-btn" onclick="scrollPrev()">⬆ Back</button>
-    <div class="viz-grid">
-        <!-- Data card on the left (revert design, keep color) -->
-        <aside class="viz-card vivid">
-            <h2>Trend in Enforcement Over Time</h2>
-            <ul>
-                <li>Camera-detected fines increased sharply after 2020.</li>
-                <li>Police-issued fines dropped over the same period.</li>
-                <li>Shift from manual to AI-based detection methods.</li>
-            </ul>
-            <button class="scroll-btn" onclick="scrollNext()">Scroll Down ↓</button>
-        </aside>
-        <!-- Chart (interactive) on the right -->
-        <div class="viz-chart">
-            <div class="viz-controls compact">
-                <label>Start <select id="year1-start"></select></label>
-                <label>End <select id="year1-end"></select></label>
-                <div class="btn-group">
-                    <button id="btn-police" class="toggle active">Police</button>
-                    <button id="btn-camera" class="toggle active">Camera</button>
+        <!-- Visualisation 2 Section -->
+        <section class="viz-section snap-section" id="blank2-section">
+     
+            <div class="viz-grid">
+                <!-- Chart area (70% on LEFT for section 4) -->
+                <div class="viz-chart">
+                    <div class="chart-card" role="figure" aria-label="Annual Fines by Jurisdiction chart">
+                        <div id="chart2" class="chart-host"></div>
+                    </div>
+                </div>
+        
+                <!-- Controls and info area (30% on RIGHT for section 4) -->
+                <div class="viz-controls-info" aria-label="Controls and insights">
+                    <!-- Filter card: white, rounded, shadow -->
+                    <section class="control-card" aria-labelledby="filters-title">
+                        <form class="filter-form" aria-describedby="filters-title">
+                            <!-- Grid 2 columns: label (left) and select (right) -->
+                            <label class="field-label" id="period-label">Period</label>
+                            <div class="period-row" role="group" aria-labelledby="period-label">
+                                <label class="visually-hidden" for="year2-start">Start Year</label>
+                                <select id="year2-start" aria-label="Start Year"></select>
+                                <label class="visually-hidden" for="year2-end">End Year</label>
+                                <select id="year2-end" aria-label="End Year"></select>
+                            </div>
+                            
+                            <label class="field-label" for="jurisdiction">Jurisdiction</label>
+                            <div class="multi-select" id="jur-select" role="combobox" aria-expanded="false" aria-label="Jurisdiction">
+                                <button type="button" class="multi-toggle" id="jur-toggle" aria-haspopup="listbox" aria-expanded="false">All</button>
+                                <div class="multi-menu" id="jur-menu" role="listbox" aria-multiselectable="true"></div>
+                            </div>
+                            
+                            <label class="field-label" for="det-method">Detection Method</label>
+                            <select id="det-method" aria-label="Detection Method"></select>
+                        </form>
+                    </section>
+        
+                    <!-- Info panel: dark gradient card with bullets and actions -->
+                    <aside class="info-panel" role="complementary" aria-labelledby="info-title">
+                        <h2 id="info-title" class="info-title">Key Findings</h2>
+                        <ul class="info-points" role="list">
+                            <li>In 2024, enforcement totals were higher than in 2023, with camera enforcement leading the charge.</li>
+                            <li>New South Wales and Queensland recorded the highest number of fines in 2024</li>
+                            <li>Australian Capital Territory had a sharp increment of annual fines since 2023.</li>
+                            <li>Northern Territory and Tasmania had the lowest enforcement numbers overall.</li>
+                        </ul>
+                        <div id="info-pie" class="info-pie" role="img" aria-label="Detection method proportion"></div>
+                        <div class="section-actions" aria-label="Section actions">
+                            <button class="btn-pill primary scroll-down" type="button" onclick="scrollNext()" aria-label="Scroll Down">
+                                <i class="btn-icon bi bi-arrow-down" aria-hidden="true"></i>
+                                <span class="btn-text">Scroll Down</span>
+                            </button>
+                            <button class="btn-pill secondary back-up" type="button" onclick="scrollPrev()" aria-label="Back">
+                                <i class="btn-icon bi bi-arrow-up" aria-hidden="true"></i>
+                                <span class="btn-text">Back</span>
+                            </button>
+                        </div>
+                    </aside>
                 </div>
             </div>
-            <div class="chart-card">
-                <div id="chart" class="chart-host"></div>
+        
+            <div class="footer-bar" role="contentinfo">
+                <span>@COS30045 Data Visualisation Project</span>
+                <span>Voong Zhe Hong, Alvin, Kenneth</span>
             </div>
-        </div>
-    </div>
-    <div class="footer-bar">
-        <span>@COS30045 Data Visualisation Project</span>
-        <span>Team Member: Voong Zhe Hong, Alvin, Kenneth</span>
-<!-- SECTION 3 -->
-<section id="charts-section">
-    <div class="cta-box">
-        <div class="cta-actions">
-            <button type="button" class="cta-btn">About us</button>
-            <button type="button" class="cta-btn">Documentation</button>
-        </div>
-        <p class="cta-meta">Team Member: Voong Zhe Hong, Alvin, Kenneth</p>
-        <p class="cta-meta">@COS30045 Data Visualisation Project</p>
-    </div>
-</section>
+        </section>
 
-<!-- New Blank Section B -->
-<section class="viz-section" id="blank2-section">
-    <button class="back-btn" onclick="scrollPrev()">⬆ Back</button>
-    <div class="viz-grid">
-        <!-- Graph (interactive) on the left -->
-        <div class="viz-chart">
-            <div class="viz-controls compact">
-                <label>Start <select id="year2-start"></select></label>
-                <label>End <select id="year2-end"></select></label>
-            </div>
-            <div class="chart-card">
-                <div id="chart2" class="chart-host"></div>
-            </div>
-        </div>
-        <!-- Data card on the right (revert design, keep color) -->
-        <aside class="viz-card vivid">
-            <h2>Enforcement Strength by State</h2>
-            <ul>
-                <li>NSW and QLD enforce mobile phone laws the most.</li>
-                <li>ACT shows high enforcement relative to peers.</li>
-                <li>TAS, NT, and WA trend lower across years.</li>
-            </ul>
-            <button class="scroll-btn" onclick="scrollNext()">Scroll Down ↓</button>
-        </aside>
-    </div>
-    <div class="footer-bar">
-        <span>@COS30045 Data Visualisation Project</span>
-        <span>Team Member: Voong Zhe Hong, Alvin, Kenneth</span>
-    </div>
-</section>
-
-<!-- New Blank Section C -->
-<section class="viz-section layout-vertical" id="blank3-section">
-    <button class="back-btn" onclick="scrollPrev()">⬆ Back</button>
-    <div class="viz-grid">
-        <!-- Graph (interactive) on top -->
-        <div class="viz-chart">
-            <div class="viz-controls compact">
-                <label>Year <select id="year3-select"></select></label>
-                <div class="btn-group">
-                    <button id="zoom-out" class="toggle" aria-label="Zoom out">−</button>
-                    <button id="zoom-in" class="toggle" aria-label="Zoom in">+</button>
+        <!-- Visualisation 3 Section -->
+        <section class="viz-section snap-section" id="blank3-section">
+            <button class="back-btn" onclick="scrollPrev()">⬆ Back</button>
+            
+            <div class="viz-grid">
+                <!-- Chart area (70% on RIGHT for section 5) -->
+                <div class="viz-chart">
+                    <div class="chart-card">
+                        <div id="chart3" class="chart-host"></div>
+                    </div>
+                </div>
+                
+                <!-- Controls and info area (30% on LEFT for section 5) -->
+                <div class="viz-controls-info">
+                    <!-- Filter controls at top -->
+                    <div class="filter-container">
+                        <div class="viz-controls compact">
+                            <label>Year <select id="year3-select"></select></label>
+                            <div class="btn-group">
+                                <button id="zoom-out" class="toggle" aria-label="Zoom out">−</button>
+                                <button id="zoom-in" class="toggle" aria-label="Zoom in">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Description container at bottom -->
+                    <aside class="description-container">
+                        <h2>Effectiveness of Enforcement Methods</h2>
+                        <ul>
+                            <li>ACT and NSW have the highest fines per 10,000 drivers.</li>
+                            <li>Earlier and wider camera deployment in these states.</li>
+                            <li>Camera enforcement appears more effective than police-only.</li>
+                        </ul>
+                        <button class="scroll-btn" onclick="scrollNext()">Scroll Down ↓</button>
+                    </aside>
                 </div>
             </div>
-            <div class="chart-card">
-                <div id="chart3" class="chart-host"></div>
+            
+            <div class="footer-bar">
+                <span>@COS30045 Data Visualisation Project</span>
+                <span>Voong Zhe Hong, Alvin, Kenneth</span>
             </div>
-        </div>
-        <!-- Data card below (revert design, keep color) -->
-        <aside class="viz-card vivid">
-            <h2>Effectiveness of Enforcement Methods</h2>
-            <ul>
-                <li>ACT and NSW have the highest fines per 10,000 drivers.</li>
-                <li>Earlier and wider camera deployment in these states.</li>
-                <li>Camera enforcement appears more effective than police-only.</li>
-            </ul>
-            <button class="scroll-btn" onclick="scrollNext()">Scroll Down ↓</button>
-        </aside>
-    </div>
-    <div class="footer-bar">
-        <span>@COS30045 Data Visualisation Project</span>
-        <span>Team Member: Voong Zhe Hong, Alvin, Kenneth</span>
-    </div>
-</section>
+        </section>
 
-<!-- SECTION 3 -->
-<section id="charts-section">
-    <img src="assets/image/dashboard.webp" alt="Road Image" class="header-img">
-     <h2 class="end-title">End of Dashboard</h2>
+        <!-- Discover More Section -->
+        <section id="charts-section" class="discover snap-section" aria-labelledby="discover-title">
+            <img src="assets/image/dashboard.webp" alt="Discover More" class="discover-image fade-on-scroll" style="--fade-delay: 60ms;">
+            <h2 id="discover-title" class="discover-title fade-on-scroll" style="--fade-delay: 60ms;">Discover More</h2>
+            <p class="discover-subtitle fade-on-scroll" style="--fade-delay: 160ms;">
+                Explore our resources, learn about our mission, and find what you need.
+            </p>
+        
+            <div class="discover-grid" role="list" aria-label="Discover More options">
+                <a href="documentation.html" class="discover-card fade-on-scroll" role="listitem" aria-label="Documentation" style="--fade-delay: 260ms;">
+                    <span class="card-icon" aria-hidden="true">
+                        <i class="bi bi-file-earmark-text"></i>
+                    </span>
+                    <div class="card-content">
+                        <h3 class="card-title">Documentation</h3>
+                        <p class="card-desc">Dive into our comprehensive project guides and API references.</p>
+                    </div>
+                </a>
+        
+                <a href="about.html" class="discover-card fade-on-scroll" role="listitem" aria-label="About Us" style="--fade-delay: 360ms;">
+                    <span class="card-icon" aria-hidden="true">
+                        <i class="bi bi-people"></i>
+                    </span>
+                    <div class="card-content">
+                        <h3 class="card-title">About Us</h3>
+                        <p class="card-desc">Learn more about our team and our commitment to road safety.</p>
+                    </div>
+                </a>
+            </div>
+        
+            <button type="button"
+                    class="cta-top-btn pill fade-on-scroll"
+                    aria-label="Back to Top"
+                    onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+                    style="--fade-delay: 460ms;">
+                <span class="pill-icon" aria-hidden="true"><i class="bi bi-arrow-up"></i></span>
+                <span>Back to Top</span>
+            </button>
+        
+            <p class="cta-meta fade-on-scroll" style="--fade-delay: 560ms;">Voong Zhe Hong, Alvin, Kenneth</p>
+            <p class="cta-meta fade-on-scroll" style="--fade-delay: 660ms;">COS30045 Data Visualisation Project</p>
+        </section>
 
-    <div class="cta-box">
-        <div class="cta-actions">
-            <a href="about.html" class="cta-btn">
-                <span class="cta-icon">👥</span> About Us
-            </a>
-
-            <a href="documentation.html" class="cta-btn">
-                <span class="cta-icon">📄</span> Documentation
-            </a>
-        </div>
-
-        <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="cta-top-btn">
-            ⬆ Back to Top
-        </button>
-
-        <p class="cta-meta">Team Member: Voong Zhe Hong, Alvin, Kenneth</p>
-        <p class="cta-meta">@COS30045 Data Visualisation Project</p>
-    </div>
-</section>
-
-
-
-
-
-
-
-
-
-<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
-<script src="chart/visualisation1.js"></script>
-<script src="chart/visualisation2.js"></script>
-<script src="chart/visualisation3.js"></script>
-<script src="js/scroll.js"></script>
-<script src="js/backButton.js"></script>
-<script src="js/datawrapper.js"></script>
-</body>
+        <!-- Load D3.js -->
+        <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+        <script src="chart/visualisation1.js"></script>
+        <script src="chart/visualisation2.js"></script>
+        <script src="chart/visualisation3.js"></script>
+        <script src="js/documentation.js"></script>
+        <script src="js/interaction.js"></script>
+        <script src="js/scroll.js"></script>
+        <script src="js/backButton.js"></script>
+    </body>
 </html>

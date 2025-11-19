@@ -1,27 +1,390 @@
+/* ===== ROOT VARIABLES & BASE STYLES ===== */
+:root {
+    --bg: #f5f8fc;
+    --card-bg: #ffffff;
+    --text: #1a1a1a;
+    --muted: #4a5568;
+    --brand: #003f7f;
+    --accent: #2a9d8f;
+    --accent-2: #f0b429;
+    --border: #e6eaf2;
+    --shadow: 0 8px 24px rgba(0,0,0,0.10);
+    /* Discover More: accessible CTA variables */
+    --cta-primary: #075db3;           /* accessible blue (~7.2:1 contrast vs white text) */
+    --cta-on-primary: #ffffff;        /* button text color */
+    --cta-bg: #003e75;                /* section card base */
+    --cta-gradient: linear-gradient(135deg, rgba(7,93,179,0.92) 0%, rgba(0,62,117,0.92) 100%);
+    --cta-ring: rgba(255,255,255,0.40);
+    /* accessible brand palette additions for audience icons */
+    --aud-gov: #0d6efd;        /* blue */
+    --aud-agency: #d63384;     /* pink/red */
+    --aud-research: #198754;   /* green */
+}
+
+html {
+  scroll-behavior: smooth;
+  width: 100vw;
+  /* height: 100vh; */
+}
+
 body {
   margin: 0;
-  font-family: "Inter", Arial, sans-serif;
+  padding: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
   scroll-snap-type: y mandatory;
-  overflow-y: scroll;
+  /* allow vertical scrolling for snap; prevent bounce overscroll */
+  overflow: hidden;
   height: 100vh;
+  overscroll-behavior-y: none;
+  overscroll-behavior-x: none;
   background: white;
 }
+
+/* Generic snap section: fills viewport and snaps each page */
+.snap-section {
+  height: 100vh;
+  width: 100vw;
+  scroll-snap-stop: always;
+  /* enable internal scrolling when content exceeds 100vh */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ===== SECTIONS & LAYOUT ===== */
 
 /* Each full page section */
 .panel {
   height: 100vh;
   min-height: 100vh;
-  width: 100%;
+  width: 100vw; /* ensure full viewport width */
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   scroll-snap-align: start;
-  padding: 40px 20px 0; /* footer flush: remove bottom gap (was 80px) */
+  padding: 40px 20px 0;
   text-align: center;
   position: relative;
   box-sizing: border-box;
 }
+
+/* Background Section */
+#background-section {
+    padding: 60px 30px 20px;
+    min-height: 100vh;
+    width: 100vw; /* ensure full viewport width */
+    position: relative;
+    box-sizing: border-box;
+    scroll-snap-align: start;
+    background-color: #f5f8fc;
+}
+
+/* Charts Section */
+#charts-section {
+  height: 100vh;
+  min-height: 100vh;
+  width: 100vw; /* ensure full viewport width */
+  scroll-snap-align: end;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px 0;
+  flex-direction: column;
+}
+
+/* Initial hidden state; will fade-up into place on scroll */
+.discover .fade-on-scroll {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 480ms ease, transform 480ms ease;
+  transition-delay: var(--fade-delay, 0ms);
+}
+.discover .fade-on-scroll.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .discover .fade-on-scroll {
+    transition: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+/* ===== VISUALIZATION SECTIONS LAYOUT ===== */
+
+/* Common layout for all visualization sections */
+.viz-section {
+  height: 100vh;
+  min-height: 100vh;
+  width: 100vw; /* ensure full viewport width */
+  scroll-snap-align: start;
+  position: relative;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 30px 20px 0;
+  /* allow internal scroll for overflowing content */
+  overflow-y: auto;
+  background-color: #f5f8fc;
+}
+
+/* Main grid container for 70/30 split
+   Height Sync Logic:
+   - The grid's height is the single source of truth (`--viz-grid-h`, fallback 75vh).
+   - Grid children are stretched so both the chart (left) and the controls/info (right)
+     share exactly the same row height.
+   - This avoids relying on JS to "read" chart height and works consistently across browsers. */
+.viz-grid {
+  display: grid;
+  grid-template-columns: 70% 30%;
+  gap: 20px;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  height: var(--viz-grid-h, 80vh);
+  align-items: stretch;
+}
+
+/* Chart area (70%) */
+.viz-chart {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Controls and info area (30%)
+   Height sync:
+   - The grid row defines the height; this container fills it (height: 100%).
+   - Children stretch; the info panel uses flex:1 to occupy remaining space.
+   - min-height:0 prevents flex overflow bugs in all major browsers. */
+.viz-controls-info {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;        /* match chart height via grid row height */
+  min-height: 0;       /* allow children to shrink within the container */
+  align-items: stretch;
+  overflow: hidden;    /* container does not scroll; inner panels handle overflow */
+}
+
+/* ===== SPECIFIC SECTION LAYOUTS ===== */
+
+/* Section 3 & 5: Chart on RIGHT (70%), filters & description on LEFT (30%) */
+#blank1-section .viz-grid,
+#blank3-section .viz-grid {
+  grid-template-columns: 30% 70%;
+}
+
+#blank1-section .viz-chart,
+#blank3-section .viz-chart {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+#blank1-section .viz-controls-info,
+#blank3-section .viz-controls-info {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+/* Section 4: Chart on LEFT (70%), filters & description on RIGHT (30%) */
+#blank2-section .viz-grid {
+  grid-template-columns: 70% 30%;
+}
+
+#blank2-section .viz-chart {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+#blank2-section .viz-controls-info {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+/* ===== COMPONENT STYLES ===== */
+
+/* Filter controls container */
+.filter-container {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  flex-shrink: 0;
+}
+
+/* Description container */
+.description-container {
+  background: linear-gradient(135deg, #075db3 0%, #003f7f 100%);
+  border-radius: 12px;
+  padding: 20px;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.description-container h2 {
+  color: white;
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.description-container ul {
+  margin: 0;
+  padding-left: 20px;
+  flex: 1;
+  min-height: 0;
+}
+
+.description-container li {
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+/* Chart container */
+.chart-card {
+  width: 100%;
+  height: 100%;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 15px;
+  box-sizing: border-box;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-host {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  flex: 1;
+}
+
+/* ===== SPECIFIC CHART 3 FIXES ===== */
+#chart3 {
+  width: 100% !important;
+  height: 100% !important;
+  position: relative;
+  overflow: visible;
+}
+
+#chart3 svg {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow: visible;
+}
+
+/* Ensure the map fills the entire chart container */
+#blank3-section .chart-card {
+  padding: 10px;
+  overflow: visible;
+}
+
+#blank3-section .chart-host {
+  position: relative;
+  overflow: visible;
+  height: 100%;
+}
+
+/* Force the map to use maximum space */
+#chart3 g {
+  transform-box: fill-box;
+}
+
+/* Compact all text elements */
+#chart3 text {
+  font-size: 11px !important;
+}
+
+#chart3 .hover-info {
+  font-size: 11px !important;
+}
+
+/* Make fifth section chart container proper size */
+#blank3-section .viz-grid {
+  height: 75vh;
+}
+
+#blank3-section .viz-chart {
+  height: 100%;
+}
+
+#blank3-section .chart-card {
+  height: 100%;
+  min-height: 0;
+}
+
+/* ===== CONTROL STYLING ===== */
+.viz-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.viz-controls.compact {
+  gap: 10px;
+}
+
+.viz-controls label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: #333;
+}
+
+.viz-controls select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: white;
+  font-size: 14px;
+}
+
+.btn-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.toggle {
+  background: #e9ecef;
+  color: #495057;
+  border: 1px solid #ced4da;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.toggle.active {
+  background: #2b59c3;
+  color: white;
+  border-color: #2b59c3;
+}
+
+.toggle:hover {
+  background: #dee2e6;
+}
+
+.toggle.active:hover {
+  background: #1e4db3;
+}
+
+/* ===== ANIMATIONS ===== */
 
 /* Fade-in animation */
 @keyframes fadeIn {
@@ -32,176 +395,40 @@ body {
   animation: fadeIn 1s ease-in-out;
 }
 
+/* Logo fade-in */
+@keyframes fadeInLogo {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Bounce Animation */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(7px); }
+}
+
+/* ===== HEADER & LOGO ===== */
+
 /* Top Left Government Logo */
 .top-left-logo {
   position: fixed;
   top: 20px;
   left: 25px;
-  width: 250px; /* Adjust size here */
+  width: 250px;
   opacity: 0.85;
-  filter: brightness(0); /* Makes it black, visible on white */
+  filter: brightness(0);
   transition: 0.3s ease;
   z-index: 1000;
+  animation: fadeInLogo 1.5s ease;
 }
 
 .top-left-logo:hover {
   opacity: 1;
   transform: scale(1.05);
 }
-.top-left-logo {
-  animation: fadeInLogo 1.5s ease;
-}
-
-@keyframes fadeInLogo {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
 
 
-/* Center road image already working… just keep this */
-.header-img {
-  width: 180px;
-  height: auto;
-  display: block;
-  margin: 0 auto 22px;
-  border-radius: 10px;
-  opacity: 0.95;
-  transition: 0.3s;
-}
-
-/* ---------------- BACKGROUND SECTION ONLY ---------------- */
-#background-section {
-    padding: 60px 30px 20px;   /* reduced padding */
-    min-height: 100vh;        /* full screen height */
-    position: relative;
-    box-sizing: border-box;
-}
-
-/* Back button */
-#background-section .back-btn {
-    position: absolute;
-    right: 25px;
-    top: 15px;
-    padding: 6px 14px;
-    background: #f1f1f1;
-    border-radius: 8px;
-    border: none;
-    font-size: 14px;
-    cursor: pointer;
-}
-
-/* Title */
-#background-section .bg-title {
-    text-align: center;
-    font-size: 34px;          /* slightly smaller */
-    margin-bottom: 25px;
-    font-weight: 700;
-}
-
-/* Intro text */
-#background-section .background-text {
-    max-width: 750px;         /* smaller width */
-    margin: 0 auto 30px;
-    text-align: center;
-}
-
-#background-section .background-text p {
-    font-size: 17px;
-    line-height: 1.55;        /* slightly tighter */
-    color: #222;
-}
-
-/* Audience title */
-#background-section .audience-title {
-    font-size: 22px;
-    margin: 20px 0 20px;
-    text-align: center;
-}
-
-/* Audience grid */
-#background-section .audience-grid {
-    display: flex;
-    gap: 18px;                /* reduced gap */
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-/* Cards */
-#background-section .audience-card {
-    background: #fff;
-    width: 280px;             /* smaller card */
-    padding: 18px 16px;
-    border-radius: 12px;
-    text-align: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-}
-
-#background-section .audience-icon {
-    font-size: 32px;
-    margin-bottom: 6px;
-}
-
-#background-section .audience-card h4 {
-    font-size: 16px;
-    margin-bottom: 6px;
-    font-weight: 700;
-}
-
-#background-section .audience-card p {
-    font-size: 14px;
-    color: #444;
-    line-height: 1.45;
-}
-
-/* Scroll Button */
-#background-section .scroll-btn {
-    display: block;
-    margin: 28px auto 20px;
-    padding: 10px 26px;
-    background: #000;
-    color: #fff;
-    border-radius: 8px;
-    border: none;
-    font-size: 15px;
-    cursor: pointer;
-}
-
-/* FOOTER BAR */
-#background-section .background-footer {
-    width: 100%;
-    padding: 8px 20px;
-    margin-top: 25px;
-    background: #003f7f;
-    color: white;
-    font-size: 13px;
-    display: flex;
-    justify-content: space-between;
-    box-sizing: border-box;
-}
-
-
-/* Back Button */
-.back-btn {
-  position: absolute;
-  top: 40px;
-  right: 40px;
-  background: #f2f2f2;
-  color: #111;
-  border: none;
-  padding: 8px 18px;
-  font-size: 14px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: 0.25s;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-}
-
-.back-btn:hover {
-  background: #e7e7e7;
-  transform: translateY(-2px);
-}
-
-
+/* ===== TYPOGRAPHY ===== */
 
 /* Headings */
 h1 {
@@ -217,6 +444,47 @@ h1 {
   color: #555;
   margin-bottom: 40px;
 }
+
+/* Section Titles */
+h2 {
+  font-size: 34px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+/* Background section titles */
+#background-section .bg-title {
+    text-align: center;
+    font-size: 34px;
+    margin-bottom: 25px;
+    font-weight: 700;
+}
+
+#background-section .audience-title {
+    font-size: 22px;
+    margin: 20px 0 20px;
+    text-align: center;
+}
+
+/* End section title */
+.end-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 26px;
+  color: rgb(0, 0, 0);
+}
+
+/* Text paragraph */
+.text-block {
+  max-width: 700px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #333;
+  margin-bottom: 35px;
+  text-align: left;
+}
+
+/* ===== BUTTONS ===== */
 
 /* Scroll Button */
 .scroll-btn {
@@ -235,10 +503,199 @@ h1 {
   transform: translateY(3px) scale(1.04);
 }
 
+/* Back Button */
+.back-btn {
+  position: absolute;
+  top: 40px;
+  right: 40px;
+  background: #f2f2f2;
+  color: #111;
+  border: none;
+  padding: 8px 18px;
+  font-size: 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.25s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  z-index: 100;
+}
+
+.back-btn:hover {
+  background: #e7e7e7;
+  transform: translateY(-2px);
+}
+
+/* Background section: refined styling + animation */
+@keyframes bgBackBtnEnter {
+  from { opacity: 0; transform: translateY(-8px); }
+  60%  { opacity: 1; transform: translateY(2px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+#background-section .back-btn {
+  position: absolute;
+  right: 25px;
+  top: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #ffffff;
+  color: #0b3b75; /* brand fallback */
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 200ms ease, background 160ms ease, color 160ms ease;
+}
+
+#background-section .back-btn i {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* Animate when section enters view */
+#background-section.in-view .back-btn {
+  animation: bgBackBtnEnter 560ms ease-out 120ms both;
+}
+
+/* Hover + focus states */
+#background-section .back-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 20px rgba(0,0,0,0.12);
+  background: #f9fafb;
+}
+
+#background-section .back-btn:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 4px rgba(42,157,143,0.35), 0 12px 20px rgba(0,0,0,0.12);
+  border-color: rgba(42,157,143,0.40);
+}
+
+/* Mobile tweaks */
+@media (max-width: 768px) {
+  #background-section .back-btn {
+    top: 12px;
+    right: 12px;
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  #background-section.in-view .back-btn {
+    animation: none !important;
+  }
+}
+
+/* Scroll button in description */
+.description-container .scroll-btn {
+  align-self: center;
+  margin-top: auto;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  flex-shrink: 0;
+}
+
+.description-container .scroll-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ===== CARDS & GRIDS ===== */
+
+/* Audience grid */
+#background-section .audience-grid {
+    display: flex;
+    gap: 18px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Audience cards */
+#background-section .audience-card {
+    background: #fff;
+    width: 280px;
+    padding: 18px 16px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+#background-section .audience-icon {
+    font-size: 32px;
+    margin-bottom: 6px;
+}
+
+#background-section .audience-card h4 {
+    font-size: 18px;
+    margin-bottom: 6px;
+    font-weight: 700;
+}
+
+#background-section .audience-card p {
+    font-size: 16px;
+    color: #444;
+    line-height: 1.45;
+}
+
+
+.panel > * {
+  animation: fadeIn 1s ease-in-out;
+}
+
+/* Logo fade-in */
+@keyframes fadeInLogo {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* Bounce Animation */
 @keyframes bounce {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(7px); }
+}
+
+/* ===== HEADER & LOGO ===== */
+
+/* Top Left Government Logo */
+.top-left-logo {
+  position: fixed;
+  top: 20px;
+  left: 25px;
+  width: 250px;
+  opacity: 0.85;
+  filter: brightness(0);
+  transition: 0.3s ease;
+  z-index: 1000;
+  animation: fadeInLogo 1.5s ease;
+}
+
+.top-left-logo:hover {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+
+/* ===== TYPOGRAPHY ===== */
+
+/* Headings */
+h1 {
+  font-size: 42px;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 14px;
+  color: #111;
+}
+
+.subtitle {
+  font-size: 18px;
+  color: #555;
+  margin-bottom: 40px;
 }
 
 /* Section Titles */
@@ -246,6 +703,28 @@ h2 {
   font-size: 34px;
   font-weight: 700;
   margin-bottom: 20px;
+}
+
+/* Background section titles */
+#background-section .bg-title {
+    text-align: center;
+    font-size: 34px;
+    margin-bottom: 25px;
+    font-weight: 700;
+}
+
+#background-section .audience-title {
+    font-size: 22px;
+    margin: 20px 0 20px;
+    text-align: center;
+}
+
+/* End section title */
+.end-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 26px;
+  color: rgb(0, 0, 0);
 }
 
 /* Text paragraph */
@@ -258,7 +737,101 @@ h2 {
   text-align: left;
 }
 
+/* Background text */
+#background-section .background-text {
+    max-width: 1000px;
+    margin: 0 auto 30px;
+    text-align: center;
+}
 
+#background-section .background-text p {
+    font-size: 17px;
+    line-height: 1.55;
+    color: #222;
+}
+
+/* ===== BUTTONS ===== */
+
+/* Scroll Button */
+.scroll-btn {
+  background: black;
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  font-size: 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.35s;
+  animation: bounce 1.8s infinite;
+}
+.scroll-btn:hover {
+  background: #222;
+  transform: translateY(3px) scale(1.04);
+}
+
+/* Back Button */
+.back-btn {
+  position: absolute;
+  top: 40px;
+  right: 40px;
+  background: #f2f2f2;
+  color: #111;
+  border: none;
+  padding: 8px 18px;
+  font-size: 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.25s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  z-index: 100;
+}
+
+.back-btn:hover {
+  background: #e7e7e7;
+  transform: translateY(-2px);
+}
+
+
+/* Scroll button in description */
+.description-container .scroll-btn {
+  align-self: center;
+  margin-top: auto;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  flex-shrink: 0;
+}
+
+.description-container .scroll-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ===== CARDS & GRIDS ===== */
+
+/* Audience grid */
+#background-section .audience-grid {
+    display: flex;
+    gap: 18px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Audience cards */
+#background-section .audience-card {
+    background: #fff;
+    width: 280px;
+    padding: 18px 16px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+#background-section .audience-icon {
+    font-size: 32px;
+    margin-bottom: 6px;
+}
+
+/* ===== FOOTER ===== */
 
 /* FOOTER stays inside section and always at bottom */
 .footer-bar {
@@ -267,507 +840,846 @@ h2 {
   left: 0;
   width: 100%;
   padding: 8px 20px;
-  background: #004076;   /* ← Replace with your exact fourth colour */
-  color: white;           /* text becomes readable */
+  background: #004076;
+  color: white;
   display: flex;
   justify-content: space-between;
   font-size: 13px;
   box-sizing: border-box;
-  margin: 0; /* no extra space below the footer */
+  margin: 0;
 }
 
-/* Placeholder box to mirror chart dimensions without data */
-.viz-placeholder {
-  background: var(--card-bg);
-  border-radius: 12px;
-  box-shadow: var(--shadow-1);
-  width: 100%;
-  height: clamp(280px, 40vh, 480px);
-}
-
-/* Layout variations for blank sections */
-.viz-grid {
-  display: grid;
-  grid-template-columns: minmax(320px, 52%) minmax(280px, 48%);
-  gap: clamp(16px, 3vw, 32px);
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.layout-card-left .viz-grid {
-  grid-template-columns: minmax(280px, 48%) minmax(320px, 52%); /* card left, chart right */
-}
-
-.layout-vertical .viz-grid {
-  grid-template-columns: 1fr; /* stack: chart top, card bottom */
-}
-
-.layout-vertical .viz-card {
-  margin-top: 12px; /* breathing room under the chart */
-}
-
-/* Images inside chart cards for blank sections (exact screenshots) */
-.chart-img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  border-radius: 12px;
-  display: block;
-}
-
-/* Ensure blank sections behave like chart sections (full screen, footer flush) */
-#blank1-section.viz-section,
-#blank2-section.viz-section,
-#blank3-section.viz-section {
-  height: 100vh;
-  min-height: 100vh;
-  scroll-snap-align: start;
-  position: relative;
-  display: flex;
-  align-items: center;
-  box-sizing: border-box;
-  padding: 40px 20px 0; /* no gap under footer */
-}
-
-#blank1-section .footer-bar,
-#blank2-section .footer-bar,
-#blank3-section .footer-bar {
-  bottom: 0;
-}
-
-/* Make the third blank section's graph a bit smaller */
-#blank3-section .chart-card {
-  height: clamp(220px, 32vh, 420px);
-}
-
-/* Gradient explanation card to match the screenshots */
-.viz-card {
-  background: var(--grad-1);
-  border-radius: 16px;
-  box-shadow: var(--shadow-2);
-  padding: clamp(16px, 3vw, 24px);
-}
-
-/* Use the same design but a stronger color gradient only */
-.viz-card.vivid {
-  background: linear-gradient(135deg, #e76da1 0%, #7482eb 100%);
-}
-
-/* Optional: keep the scroll button comfortable inside the card without changing layout */
-.viz-card.vivid .scroll-btn {
-  margin-top: 8px;
-}
-
-.viz-card.cta h2 {
-  margin-top: 0;
-  margin-bottom: 8px;
-  font-size: clamp(24px, 3.2vw, 36px);
-  font-weight: 800;
-  color: #111;
-}
-
-.viz-card.cta ul {
-  margin: 0 0 8px 0;
-  padding-left: 18px;
-  color: #222;
-  font-size: clamp(14px, 1.4vw, 16px);
-}
-
-/* Center the scroll button inside the info card */
-.viz-card.cta .scroll-btn {
-  align-self: center;
-  margin-top: 6px;
-}
-
-/* ===== Chart container & controls ===== */
-.viz-chart {
-  width: 100%;
-  overflow: visible; /* prevent svg legends from being clipped */
-  display: flex;
-  flex-direction: column;
-}
-
-.chart-card {
-  width: 100%;
-  overflow: visible; /* allow bottom legends outside plot area */
-  border-radius: 12px;
-}
-
-.chart-host {
-  width: 100%;
-  height: clamp(280px, 40vh, 480px); /* reasonable default height for D3 */
-}
-
-.viz-controls {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 10px; /* place above the chart */
-  font-size: 14px;
-}
-
-.viz-controls label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: #f6f6f6;
-  border: 1px solid #e3e3e3;
-  border-radius: 8px;
-  padding: 6px 8px;
-}
-
-.viz-controls select {
-  padding: 4px 8px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  background: white;
-}
-
-.btn-group {
-  display: flex;
-  gap: 8px;
-}
-
-.toggle {
-  background: #111;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.toggle.active {
-  background: #2b59c3;
-}
-#charts-section {
-  /* final section visible and flush */
-  height: 100vh;
-  min-height: 100vh;
-  scroll-snap-align: end; /* make sure last section has no trailing gap */
-  position: relative;
-  display: flex;              /* center the container */
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px 0;       /* no extra space under the section */
-}
-
-/* Gradient container with two buttons */
-.cta-box {
-  width: min(900px, 92%);
-  background: linear-gradient(to right, #f5d0da, #e4f0d0, #00a6a6);
-  border-radius: 12px;
-  padding: 24px 28px;
-  text-align: center;
-}
-
-.cta-actions {
-  display: flex;
-  justify-content: center;
-  gap: 28px;
-  margin: 18px 0 20px;
-}
-
-.cta-btn {
-  background: #8b5cf6; /* purple tone for contrast */
-  color: #fff;
-  border: none;
-  padding: 14px 24px;
-  border-radius: 12px;
-  cursor: pointer;
-  font-size: 16px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-  transition: 0.2s ease;
-}
-
-.cta-btn:hover {
-  transform: translateY(-1px);
-  opacity: 0.95;
-}
-
-.cta-meta {
-  margin: 6px 0 0;
-  font-size: 14px;
-  color: #222;
-}
-#blank3-section {
-  scroll-snap-align: end;
-}
-
-
-/* Placeholder box to mirror chart dimensions without data */
-.viz-placeholder {
-  background: var(--card-bg);
-  border-radius: 12px;
-  box-shadow: var(--shadow-1);
-  width: 100%;
-  height: clamp(280px, 40vh, 480px);
-}
-
-/* Layout variations for blank sections */
-.viz-grid {
-  display: grid;
-  grid-template-columns: minmax(320px, 52%) minmax(280px, 48%);
-  gap: clamp(16px, 3vw, 32px);
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.layout-card-left .viz-grid {
-  grid-template-columns: minmax(280px, 48%) minmax(320px, 52%); /* card left, chart right */
-}
-
-.layout-vertical .viz-grid {
-  grid-template-columns: 1fr; /* stack: chart top, card bottom */
-}
-
-.layout-vertical .viz-card {
-  margin-top: 12px; /* breathing room under the chart */
-}
-
-/* Images inside chart cards for blank sections (exact screenshots) */
-.chart-img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  border-radius: 12px;
-  display: block;
-}
-
-/* Ensure blank sections behave like chart sections (full screen, footer flush) */
-#blank1-section.viz-section,
-#blank2-section.viz-section,
-#blank3-section.viz-section {
-  height: 100vh;
-  min-height: 100vh;
-  scroll-snap-align: start;
-  position: relative;
-  display: flex;
-  align-items: center;
-  box-sizing: border-box;
-  padding: 40px 20px 0; /* no gap under footer */
-}
-
-#blank1-section .footer-bar,
-#blank2-section .footer-bar,
-#blank3-section .footer-bar {
-  bottom: 0;
-}
-
-/* Make the third blank section's graph a bit smaller */
-#blank3-section .chart-card {
-  height: clamp(220px, 32vh, 420px);
-}
-
-/* Gradient explanation card to match the screenshots */
-.viz-card {
-  background: var(--grad-1);
-  border-radius: 16px;
-  box-shadow: var(--shadow-2);
-  padding: clamp(16px, 3vw, 24px);
-}
-
-/* Use the same design but a stronger color gradient only */
-/* Match the same blue color as the footer bar */
-.viz-card.vivid {
-    background: #075db3;              /* footer color */
-    color: white;                     /* make text readable */
-    border-radius: 16px;
-    padding: clamp(16px, 3vw, 24px);
-    box-shadow: var(--shadow-2);
-}
-
-.viz-card.vivid h2,
-.viz-card.vivid ul li {
+/* Background section footer */
+#background-section .background-footer {
+    width: 100%;
+    padding: 8px 20px;
+    margin-top: 25px;
+    background: #003f7f;
     color: white;
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    box-sizing: border-box;
 }
-
-
-/* Optional: keep the scroll button comfortable inside the card without changing layout */
-.viz-card.vivid .scroll-btn {
-  margin-top: 8px;
-}
-
-.viz-card.cta h2 {
-  margin-top: 0;
-  margin-bottom: 8px;
-  font-size: clamp(24px, 3.2vw, 36px);
-  font-weight: 800;
-  color: #111;
-}
-
-.viz-card.cta ul {
-  margin: 0 0 8px 0;
-  padding-left: 18px;
-  color: #222;
-  font-size: clamp(14px, 1.4vw, 16px);
-}
-
-/* Center the scroll button inside the info card */
-.viz-card.cta .scroll-btn {
-  align-self: center;
-  margin-top: 6px;
-}
-
-/* ===== Chart container & controls ===== */
-.viz-chart {
-  width: 100%;
-  overflow: visible; /* prevent svg legends from being clipped */
-  display: flex;
-  flex-direction: column;
-}
-
-.chart-card {
-  width: 100%;
-  overflow: visible; /* allow bottom legends outside plot area */
-  border-radius: 12px;
-}
-
-.chart-host {
-  width: 100%;
-  height: clamp(280px, 40vh, 480px); /* reasonable default height for D3 */
-}
-
-.viz-controls {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 10px; /* place above the chart */
-  font-size: 14px;
-}
-
-.viz-controls label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: #f6f6f6;
-  border: 1px solid #e3e3e3;
-  border-radius: 8px;
-  padding: 6px 8px;
-}
-
-.viz-controls select {
-  padding: 4px 8px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  background: white;
-}
-
-.btn-group {
-  display: flex;
-  gap: 8px;
-}
-
-.toggle {
-  background: #111;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.toggle.active {
-  background: #2b59c3;
-}
-
-/*End of Dashboard CSS*/
-#charts-section {
-  height: 100vh;
-  min-height: 100vh;
-  scroll-snap-align: end;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px 0;
-  flex-direction: column; 
-}
-
-/* Title  */
-.end-title {
-  font-size: 32px;
-  font-weight: 700;
-  margin-bottom: 26px;        
-  color: rgb(0, 0, 0);               
-}
-
-/* Blue panel box */
-.cta-box {
-  width: min(900px, 92%);
-  background: #003e75;  
-  border-radius: 18px;
-  padding: 40px 32px;
-  text-align: center;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-  color: white;
-}
-
-
-/* Button Row */
-.cta-actions {
-  display: flex;
-  justify-content: center;
-  gap: 28px;
-  margin: 8px 0 28px;
-}
-
-/* Main purple buttons */
-.cta-btn {
-  background: #8b5cf6;
-  color: white;
-  border: none;
-  padding: 14px 26px;
-  border-radius: 12px;
-  cursor: pointer;
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-  transition: 0.2s ease;
-}
-
-.cta-btn:hover {
-  transform: translateY(-2px);
-  opacity: 0.95;
-}
-
-/* Icons */
-.cta-icon {
-  font-size: 18px;
-}
-
-/* Back to Top button */
-.cta-top-btn {
-  margin-bottom: 18px;
-  background: transparent;
-  border: 2px solid #ffffffaa;
-  padding: 10px 22px;
-  border-radius: 10px;
-  color: white;
-  cursor: pointer;
-  font-size: 15px;
-  transition: 0.25s;
-}
-
-.cta-top-btn:hover {
-  background: white;
-  color: #003e75;
-}
-
-.cta-btn, 
-.cta-btn a {
-    text-decoration: none !important;
-}
-
 
 /* Footer meta */
 .cta-meta {
   margin: 4px 0 0;
-  font-size: 14px;
+  font-size: 16px;
   opacity: 0.9;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+@media (max-width: 1024px) {
+  .viz-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: 60% 40%;
+    height: var(--viz-grid-h, 80vh);
+    gap: 15px;
+    align-items: stretch;
+  }
+  
+  .viz-chart {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  
+  .viz-controls-info {
+    grid-column: 1;
+    grid-row: 2;
+    flex-direction: row;
+    gap: 15px;
+    height: 100%;
+    min-height: 0;
+    align-items: stretch;
+    overflow: hidden;
+  }
+  
+  .filter-container,
+  .description-container {
+    flex: 1;
+    min-height: 200px;
+  }
+  
+  /* Override specific sections for tablet */
+  #blank1-section .viz-grid,
+  #blank2-section .viz-grid,
+  #blank3-section .viz-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: 60% 40%;
+  }
+  
+  #blank1-section .viz-chart,
+  #blank2-section .viz-chart,
+  #blank3-section .viz-chart {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  
+  #blank1-section .viz-controls-info,
+  #blank2-section .viz-controls-info,
+  #blank3-section .viz-controls-info {
+    grid-column: 1;
+    grid-row: 2;
+    height: 100%;
+    min-height: 0;
+    align-items: stretch;
+    overflow: hidden;
+  }
+  
+  /* Adjust headings for tablet */
+  h1 {
+    font-size: 36px;
+  }
+  
+  h2 {
+    font-size: 28px;
+  }
+  
+  .description-container h2 {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .viz-controls-info {
+    flex-direction: column;
+    gap: 15px;
+    height: 100%;
+    min-height: 0;
+    align-items: stretch;
+    overflow: hidden;
+  }
+  
+  .filter-container,
+  .description-container {
+    min-height: auto;
+    flex: none;
+  }
+  
+  .viz-grid {
+    gap: 15px;
+    height: var(--viz-grid-h, 75vh);
+    align-items: stretch;
+  }
+  
+  /* Mobile adjustments */
+  .top-left-logo {
+    width: 200px;
+    left: 15px;
+    top: 15px;
+  }
+  
+  .back-btn {
+    top: 20px;
+    right: 20px;
+    padding: 6px 14px;
+    font-size: 13px;
+  }
+  
+  h1 {
+    font-size: 32px;
+  }
+  
+  h2 {
+    font-size: 24px;
+  }
+  
+  .description-container h2 {
+    font-size: 18px;
+  }
+  
+  .cta-actions {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .cta-btn {
+    padding: 12px 20px;
+    font-size: 15px;
+  }
+  
+  /* Audience grid mobile */
+  #background-section .audience-grid {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  #background-section .audience-card {
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .viz-section {
+    padding: 50px 15px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .panel,
+  .viz-section,
+  #background-section,
+  #charts-section {
+    padding: 30px 15px 0;
+  }
+  
+  h1 {
+    font-size: 28px;
+  }
+  
+  h2 {
+    font-size: 22px;
+  }
+  
+  .description-container h2 {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+  
+  .subtitle {
+    font-size: 16px;
+  }
+  
+  .top-left-logo {
+    width: 160px;
+  }
+  
+  .viz-controls {
+    gap: 8px;
+  }
+  
+  .btn-group {
+    justify-content: center;
+  }
+  
+  .footer-bar {
+    flex-direction: column;
+    gap: 5px;
+    text-align: center;
+    padding: 10px 20px;
+  }
+  
+  .filter-container,
+  .description-container {
+    padding: 15px;
+  }
+  
+  .viz-grid {
+    height: var(--viz-grid-h, 70vh);
+    gap: 12px;
+    align-items: stretch;
+  }
+}
+
+/* ===== SCROLLBAR STYLING FOR DESCRIPTION CONTAINER ===== */
+.description-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.description-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.description-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.description-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Section wrapper */
+.discover {
+  /* matches the light gray in the reference */
+  background: #f5f8fc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 14px;
+  padding: 40px 20px 0; /* keep top padding consistent with other sections */
+}
+
+/* Heading and subtitle */
+.discover-title {
+  font-size: 40px;            /* close to visual size in screenshot */
+  font-weight: 800;           /* strong emphasis */
+  color: #0f172a;             /* deep slate */
+  margin: 0 0 6px;
+}
+
+.discover-subtitle {
+  max-width: 640px;
+  font-size: 18px;
+  line-height: 1.6;
+  color: #6b7280;             /* muted gray */
+  margin: 0 auto 18px;
+}
+
+/* Cards grid */
+.discover-grid {
+  width: min(940px, 92%);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
+  gap: 20px;
+  align-items: start;
+  justify-content: center;
+}
+
+/* Card */
+.discover-card {
+  display: grid;
+  grid-template-columns: auto 1fr; /* icon left, content right */
+  gap: 16px;
+  align-items: start;
+  text-align: left;
+  text-decoration: none !important;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 18px 18px;
+  box-shadow: 0 2px 6px rgba(16, 24, 40, 0.06); /* subtle elevation */
+  color: #111;
+  transition: transform 150ms ease, box-shadow 200ms ease, border-color 200ms ease;
+  will-change: transform;
+}
+
+.discover-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(16, 24, 40, 0.10);
+  border-color: #e3e6ee;
+}
+
+.discover-card:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(43, 89, 195, 0.25); /* accessible focus ring */
+}
+
+.discover-image {
+  width: 100%;
+  height: auto;
+  max-width: 150px;
+  /* margin-bottom: 20px; */
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(16, 24, 40, 0.06);
+}
+
+/* Left icon badge */
+.card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: #eaf2ff;       /* soft brand-tinted background */
+  color: #2b59c3;            /* brand blue for icon */
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 1px #dbe6ff;
+}
+
+.card-icon .bi {
+  font-size: 20px;
+  line-height: 1;
+}
+
+/* Card content */
+.card-title {
+  margin: 2px 0 4px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.card-desc {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #4b5563;
+}
+
+/* Pill Back-to-Top */
+.cta-top-btn.pill {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 20px;
+  gap: 10px;
+  background: #e5e7eb;
+  color: #111;
+  border: 1px solid #d1d5db;
+  padding: 10px 20px;
+  border-radius: 9999px;
+  cursor: pointer;
+  font-size: 15px;
+  box-shadow: 0 2px 6px rgba(16, 24, 40, 0.08);
+  transition: background-color 180ms ease, transform 120ms ease, box-shadow 180ms ease;
+}
+
+.cta-top-btn.pill:hover {
+  background: #eaecf0;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(16, 24, 40, 0.12);
+}
+
+.cta-top-btn.pill:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(43, 89, 195, 0.25);
+}
+
+/* Small circular icon bubble inside pill */
+.pill-icon {
+  /* width: 36px;
+  height: 36px; */
+  /* border-radius: 9999px; */
+  display: grid;
+  place-items: center;
+  /* background: #d1d5db; */
+  color: #111;
+  font-size: 40px;
+}
+
+.pill-icon .bi {
+  font-size: 22px;
+}
+
+/* Responsive breakpoints (match layout in reference) */
+@media (max-width: 768px) {
+  .discover-grid { grid-template-columns: 1fr; }
+  .discover-title { font-size: 32px; }
+  .discover-subtitle { font-size: 15px; }
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .discover-card,
+  .cta-top-btn.pill { transition: none; }
+}
+/* ===== Discover More: jumping animation for Back to Top ===== */
+/* Jump animation: two quick lifts, then settle */
+@keyframes jumpY {
+  0%   { transform: translateY(0); }
+  22%  { transform: translateY(-8px); }
+  36%  { transform: translateY(0); }
+  52%  { transform: translateY(-4px); }
+  68%  { transform: translateY(0); }
+  100% { transform: translateY(0); }
+}
+
+/* Apply jump to whole pill button */
+.cta-top-btn.pill {
+  animation: jumpY 2.6s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Disable fade-item animations; keep content static */
+.discover .fade-item {
+  opacity: 1;
+  transform: none;
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .cta-top-btn.pill { animation: none !important; }
+}
+
+/* Hide old card styles that conflict with new layout */
+.viz-card {
+  display: none;
+}
+
+.viz-placeholder {
+  display: none;
+}
+
+/* Ensure Background section can position centered button */
+#background-section {
+    position: relative;
+}
+
+/* Centered Scroll button variant for Background section */
+#background-section .scroll-btn.center {
+    position: absolute;
+    left: 45%;
+    bottom: 10%;
+    transform: translateX(-50%);
+    top: auto;
+    right: auto;
+    z-index: 5;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px 18px;
+    border-radius: 12px;
+    background: var(--brand);
+    color: #fff;
+    border: none;
+    box-shadow: 0 10px 18px rgba(0,0,0,0.12);
+}
+#background-section .scroll-btn.center i {
+    font-size: 22px;
+    line-height: 1;
+}
+
+/* Audience icon styling with Bootstrap icons */
+.audience-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.06);
+}
+.audience-icon i {
+    font-size: 22px;
+}
+
+/* Icon color variants */
+.audience-icon.icon-gov { color: var(--aud-gov); }
+.audience-icon.icon-agency { color: var(--aud-agency); }
+.audience-icon.icon-research { color: var(--aud-research); }
+
+/* Optional: dark mode inheritance if you add a toggle later */
+body[data-theme="dark"] {
+    --bg: #0f1623;
+    --card-bg: #121a2b;
+    --text: #e6e6e6;
+    --muted: #b8c0cc;
+    --brand: #6aa2ff;
+    --accent: #57c2b6;
+    --accent-2: #f5c257;
+    --border: #1f2a3f;
+}
+
+/* Visualization 2: right column layout and cards */
+#blank2-section .viz-grid {
+  grid-template-columns: 70% 30%;
+  gap: 20px;
+  align-items: stretch; /* ensure both columns fill the row height */
+}
+
+/* Right column stack: filter card above info panel */
+#blank2-section .viz-controls-info {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+  min-height: 0;           /* critical for flex children to shrink inside */
+  width: 100%;
+  box-sizing: border-box;
+  align-items: stretch;
+  overflow: hidden;        /* prevent children from bleeding outside */
+}
+
+/* Filter card */
+#blank2-section .control-card {
+  flex: 0 0 auto;      /* do not stretch vertically */
+  background: #ffffff;
+  border: 1px solid #e6eaf2;
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+}
+#blank2-section .control-title {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 800;
+  color: #003f7f;
+}
+#blank2-section .filter-form label {
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+  color: #333;
+}
+#blank2-section .filter-form select {
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 14px;
+}
+
+/* Info panel: flex layout to pin actions at bottom and avoid overflow */
+#blank2-section .info-panel {
+  background: linear-gradient(135deg, #075db3 0%, #003f7f 100%);
+  color: #ffffff;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.18);
+  display: flex;           /* switched from grid to flex to control overflow */
+  flex-direction: column;
+  gap: 10px;
+  flex: 1 1 auto;          /* occupy remaining height below the filter card */
+  min-height: 0;           /* allow shrinking inside parent */
+  overflow: auto;          /* internal scroll for long content */
+}
+#blank2-section .info-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+#blank2-section .info-points {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+  overflow-wrap: anywhere;
+}
+#blank2-section .info-points li {
+  position: relative;
+  padding-left: 22px;
+  margin: 8px 0;
+  line-height: 1.5;
+  
+}
+#blank2-section .info-points li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 2px;
+  font-size: 16px;
+  line-height: 1;
+  color: #ffffff;
+}
+
+/* Rounded inner panel placeholder to match screenshot */
+#blank2-section .panel-placeholder {
+  flex: 1 1 auto;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.12);
+  border: 1px dashed rgba(255,255,255,0.20);
+  min-height: 180px;
+  max-width: 100%;
+}
+
+/* Section actions inside info panel: bottom-centered */
+#blank2-section .section-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: auto; /* pin to bottom of info-panel */
+}
+
+/* Icon size and spacing */
+#blank2-section .btn-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+#blank2-section .btn-text {
+  font-weight: 700;
+}
+
+/* Jump animations */
+@keyframes jumpDown { 0%,100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
+@keyframes jumpUp { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
+#blank2-section .btn-pill.scroll-down { animation: jumpDown 2s ease-in-out infinite; }
+#blank2-section .btn-pill.back-up { animation: jumpUp 2s ease-in-out infinite; }
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  #blank2-section .btn-pill.scroll-down,
+  #blank2-section .btn-pill.back-up { animation: none !important; }
+}
+
+/* Visually hidden text helper */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0);
+  white-space: nowrap; border: 0;
+}
+
+/* Pill buttons */
+#blank2-section .btn-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 13px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 180ms ease, background 160ms ease, color 160ms ease, border-color 160ms ease;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.10);
+}
+#blank2-section .btn-pill i {
+  font-size: 18px;
+  line-height: 1;
+}
+#blank2-section .btn-pill.primary {
+  background: #ffffff;
+  color: #003f7f;
+  border-color: rgba(255,255,255,0.6);
+}
+#blank2-section .btn-pill.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(0,0,0,0.14);
+  background: #f9fafb;
+}
+#blank2-section .btn-pill.secondary {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: rgba(255,255,255,0.6);
+}
+#blank2-section .btn-pill.secondary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(0,0,0,0.14);
+  background: #f9fafb;
+}
+
+/* Accessibility: focus-visible ring */
+#blank2-section .btn-pill:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.45), 0 10px 18px rgba(0,0,0,0.14);
+}
+
+/* Responsive tweaks to match reference at smaller sizes */
+@media (max-width: 1024px) {
+  #blank2-section .viz-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: 60% 40%;
+    gap: 16px;
+  }
+  #blank2-section .viz-controls-info {
+    flex-direction: row;
+    gap: 16px;
+    min-height: 0;
+    align-items: stretch;
+    height: 100%;
+    overflow: hidden;
+  }
+  #blank2-section .control-card {
+    flex: 1 1 40%;
+  }
+  #blank2-section .info-panel {
+    flex: 1 1 60%;
+    min-height: 0;
+    overflow: auto;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  #blank2-section .viz-controls-info {
+    flex-direction: column;
+    min-height: 0;
+    align-items: stretch;
+    height: 100%;
+    overflow: hidden;
+  }
+  #blank2-section .control-card {
+    flex: 0 0 auto;
+    max-width: 100%;
+  }
+  #blank2-section .info-panel {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-width: 100%;
+    overflow: auto;
+  }
+  #blank2-section .section-actions {
+    justify-content: center;
+    gap: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #blank2-section .btn-pill {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* Control card filter form: two-column grid */
+.control-card .filter-form {
+  display: grid;
+  grid-template-columns: auto 1fr; /* label | select */
+  align-items: center;
+  column-gap: 12px;
+  row-gap: 12px;
+}
+
+/* Label styling scoped to control-card form */
+.control-card .filter-form .field-label {
+  font-weight: 600;
+  color: #333;
+}
+
+/* Period component */
+#blank2-section .period-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: center; }
+
+/* Jurisdiction multi-select dropdown */
+#blank2-section .multi-select { position: relative; }
+#blank2-section .multi-toggle {
+  width: 100%;
+  padding: 10px 44px 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 14px;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease, box-shadow 180ms ease, transform 120ms ease;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2364748b' viewBox='0 0 16 16'><path d='M4.646 6.646a.5.5 0 0 1 .708 0L8 9.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 16px 16px;
+}
+#blank2-section .multi-toggle:hover {
+  background: #f9fafb;
+  border-color: #b6c2d6;
+}
+#blank2-section .multi-toggle:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 4px rgba(99,102,241,0.25);
+  border-color: #94a3b8;
+}
+#blank2-section .multi-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 100%;
+  /* max-height: 240px; */
+  overflow: auto;
+  background: #fff;
+  border: 1px solid #e6eaf2;
+  border-radius: 6px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+  display: none;
+  z-index: 20;
+  /* padding: 8px; */
+}
+#blank2-section .multi-select[aria-expanded="true"] .multi-menu { display: block; }
+#blank2-section .multi-menu label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #0f172a;
+}
+#blank2-section .multi-menu label:hover { background: #f5f7fb; }
+#blank2-section .multi-menu input[type="checkbox"] { accent-color: #075db3; }
+
+/* Responsive: stack label above select on small screens */
+@media (max-width: 480px) {
+  .control-card .filter-form {
+    grid-template-columns: 1fr;
+  }
+  .control-card .filter-form .field-label {
+    margin-bottom: 4px;
+  }
 }
