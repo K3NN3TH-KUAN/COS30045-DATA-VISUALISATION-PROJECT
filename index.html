@@ -25,7 +25,7 @@
 
             <div class="footer-bar">
                 <span>@COS30045 Data Visualisation Project</span>
-                <span>Team Member: Voong Zhe Hong, Alvin, Kenneth</span>
+                <span>Voong Zhe Hong, Alvin, Kenneth</span>
             </div>
         </section>
 
@@ -79,12 +79,12 @@
             <!-- Centered scroll button for Background section -->
             <button class="scroll-btn center" onclick="scrollNext()" aria-label="Scroll Down">
                 <i class="bi bi-arrow-down-short" aria-hidden="true"></i>
-                <span class="visually-hidden">Scroll Down</span>
+                <span>Scroll Down</span>
             </button>
 
             <div class="footer-bar">
                 <span>@COS30045 Data Visualisation Project</span>
-                <span>Team Member: Voong Zhe Hong, Alvin, Kenneth</span>
+                <span>Voong Zhe Hong, Alvin, Kenneth</span>
             </div>
         </section>
 
@@ -129,48 +129,73 @@
             
             <div class="footer-bar">
                 <span>@COS30045 Data Visualisation Project</span>
-                <span>Team Member: Voong Zhe Hong, Alvin, Kenneth</span>
+                <span>Voong Zhe Hong, Alvin, Kenneth</span>
             </div>
         </section>
 
         <!-- Visualisation 2 Section -->
         <section class="viz-section snap-section" id="blank2-section">
-            <button class="back-btn" onclick="scrollPrev()">⬆ Back</button>
-            
+     
             <div class="viz-grid">
                 <!-- Chart area (70% on LEFT for section 4) -->
                 <div class="viz-chart">
-                    <div class="chart-card">
+                    <div class="chart-card" role="figure" aria-label="Annual Fines by Jurisdiction chart">
                         <div id="chart2" class="chart-host"></div>
                     </div>
                 </div>
-                
+        
                 <!-- Controls and info area (30% on RIGHT for section 4) -->
-                <div class="viz-controls-info">
-                    <!-- Filter controls at top -->
-                    <div class="filter-container">
-                        <div class="viz-controls compact">
-                            <label>Start <select id="year2-start"></select></label>
-                            <label>End <select id="year2-end"></select></label>
-                        </div>
-                    </div>
-                    
-                    <!-- Description container at bottom -->
-                    <aside class="description-container">
-                        <h2>Enforcement Strength by State</h2>
-                        <ul>
-                            <li>NSW and QLD enforce mobile phone laws the most.</li>
-                            <li>ACT shows high enforcement relative to peers.</li>
-                            <li>TAS, NT, and WA trend lower across years.</li>
+                <div class="viz-controls-info" aria-label="Controls and insights">
+                    <!-- Filter card: white, rounded, shadow -->
+                    <section class="control-card" aria-labelledby="filters-title">
+                        <form class="filter-form" aria-describedby="filters-title">
+                            <!-- Grid 2 columns: label (left) and select (right) -->
+                            <label class="field-label" id="period-label">Period</label>
+                            <div class="period-row" role="group" aria-labelledby="period-label">
+                                <label class="visually-hidden" for="year2-start">Start Year</label>
+                                <select id="year2-start" aria-label="Start Year"></select>
+                                <label class="visually-hidden" for="year2-end">End Year</label>
+                                <select id="year2-end" aria-label="End Year"></select>
+                            </div>
+                            
+                            <label class="field-label" for="jurisdiction">Jurisdiction</label>
+                            <div class="multi-select" id="jur-select" role="combobox" aria-expanded="false" aria-label="Jurisdiction">
+                                <button type="button" class="multi-toggle" id="jur-toggle" aria-haspopup="listbox" aria-expanded="false">All</button>
+                                <div class="multi-menu" id="jur-menu" role="listbox" aria-multiselectable="true"></div>
+                            </div>
+                            
+                            <label class="field-label" for="det-method">Detection Method</label>
+                            <select id="det-method" aria-label="Detection Method"></select>
+                        </form>
+                    </section>
+        
+                    <!-- Info panel: dark gradient card with bullets and actions -->
+                    <aside class="info-panel" role="complementary" aria-labelledby="info-title">
+                        <h2 id="info-title" class="info-title">Key Findings</h2>
+                        <ul class="info-points" role="list">
+                            <li>In 2024, enforcement totals were higher than in 2023, with camera enforcement leading the charge.</li>
+                            <li>New South Wales and Queensland recorded the highest number of fines in 2024</li>
+                            <li>Australian Capital Territory had a sharp increment of annual fines since 2023.</li>
+                            <li>Northern Territory and Tasmania had the lowest enforcement numbers overall.</li>
                         </ul>
-                        <button class="scroll-btn" onclick="scrollNext()">Scroll Down ↓</button>
+                        <div id="info-pie" class="info-pie" role="img" aria-label="Detection method proportion"></div>
+                        <div class="section-actions" aria-label="Section actions">
+                            <button class="btn-pill primary scroll-down" type="button" onclick="scrollNext()" aria-label="Scroll Down">
+                                <i class="btn-icon bi bi-arrow-down" aria-hidden="true"></i>
+                                <span class="btn-text">Scroll Down</span>
+                            </button>
+                            <button class="btn-pill secondary back-up" type="button" onclick="scrollPrev()" aria-label="Back">
+                                <i class="btn-icon bi bi-arrow-up" aria-hidden="true"></i>
+                                <span class="btn-text">Back</span>
+                            </button>
+                        </div>
                     </aside>
                 </div>
             </div>
-            
-            <div class="footer-bar">
+        
+            <div class="footer-bar" role="contentinfo">
                 <span>@COS30045 Data Visualisation Project</span>
-                <span>Team Member: Voong Zhe Hong, Alvin, Kenneth</span>
+                <span>Voong Zhe Hong, Alvin, Kenneth</span>
             </div>
         </section>
 
@@ -214,7 +239,7 @@
             
             <div class="footer-bar">
                 <span>@COS30045 Data Visualisation Project</span>
-                <span>Team Member: Voong Zhe Hong, Alvin, Kenneth</span>
+                <span>Voong Zhe Hong, Alvin, Kenneth</span>
             </div>
         </section>
 
@@ -266,30 +291,9 @@
         <script src="chart/visualisation1.js"></script>
         <script src="chart/visualisation2.js"></script>
         <script src="chart/visualisation3.js"></script>
+        <script src="js/documentation.js"></script>
+        <script src="js/interaction.js"></script>
         <script src="js/scroll.js"></script>
         <script src="js/backButton.js"></script>
-        <script src="js/datawrapper.js"></script>
     </body>
-
-    <!-- Discover fade-on-scroll styles (scoped to this page) -->
-    <style>
-      /* Initial hidden state; will fade-up into place on scroll */
-      .discover .fade-on-scroll {
-        opacity: 0;
-        transform: translateY(14px);
-        transition: opacity 480ms ease, transform 480ms ease;
-        transition-delay: var(--fade-delay, 0ms);
-      }
-      .discover .fade-on-scroll.visible {
-        opacity: 1;
-        transform: translateY(0);
-      }
-      @media (prefers-reduced-motion: reduce) {
-        .discover .fade-on-scroll {
-          transition: none;
-          opacity: 1;
-          transform: none;
-        }
-      }
-    </style>
 </html>

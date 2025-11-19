@@ -93,6 +93,24 @@ body {
   flex-direction: column;
 }
 
+/* Initial hidden state; will fade-up into place on scroll */
+.discover .fade-on-scroll {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 480ms ease, transform 480ms ease;
+  transition-delay: var(--fade-delay, 0ms);
+}
+.discover .fade-on-scroll.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .discover .fade-on-scroll {
+    transition: none;
+    opacity: 1;
+    transform: none;
+  }
+}
 /* ===== VISUALIZATION SECTIONS LAYOUT ===== */
 
 /* Common layout for all visualization sections */
@@ -105,12 +123,18 @@ body {
   display: flex;
   align-items: center;
   box-sizing: border-box;
-  padding: 60px 20px 0;
+  padding: 30px 20px 0;
   /* allow internal scroll for overflowing content */
   overflow-y: auto;
+  background-color: #f5f8fc;
 }
 
-/* Main grid container for 70/30 split */
+/* Main grid container for 70/30 split
+   Height Sync Logic:
+   - The grid's height is the single source of truth (`--viz-grid-h`, fallback 75vh).
+   - Grid children are stretched so both the chart (left) and the controls/info (right)
+     share exactly the same row height.
+   - This avoids relying on JS to "read" chart height and works consistently across browsers. */
 .viz-grid {
   display: grid;
   grid-template-columns: 70% 30%;
@@ -118,8 +142,8 @@ body {
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  height: 75vh;
-  align-items: start;
+  height: var(--viz-grid-h, 80vh);
+  align-items: stretch;
 }
 
 /* Chart area (70%) */
@@ -131,14 +155,19 @@ body {
   min-height: 0;
 }
 
-/* Controls and info area (30%) */
+/* Controls and info area (30%)
+   Height sync:
+   - The grid row defines the height; this container fills it (height: 100%).
+   - Children stretch; the info panel uses flex:1 to occupy remaining space.
+   - min-height:0 prevents flex overflow bugs in all major browsers. */
 .viz-controls-info {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  height: 100%;
-  min-height: 0;
-  overflow: hidden;
+  height: 100%;        /* match chart height via grid row height */
+  min-height: 0;       /* allow children to shrink within the container */
+  align-items: stretch;
+  overflow: hidden;    /* container does not scroll; inner panels handle overflow */
 }
 
 /* ===== SPECIFIC SECTION LAYOUTS ===== */
@@ -846,8 +875,9 @@ h2 {
   .viz-grid {
     grid-template-columns: 1fr;
     grid-template-rows: 60% 40%;
-    height: 80vh;
+    height: var(--viz-grid-h, 80vh);
     gap: 15px;
+    align-items: stretch;
   }
   
   .viz-chart {
@@ -860,7 +890,10 @@ h2 {
     grid-row: 2;
     flex-direction: row;
     gap: 15px;
-    height: auto;
+    height: 100%;
+    min-height: 0;
+    align-items: stretch;
+    overflow: hidden;
   }
   
   .filter-container,
@@ -889,6 +922,10 @@ h2 {
   #blank3-section .viz-controls-info {
     grid-column: 1;
     grid-row: 2;
+    height: 100%;
+    min-height: 0;
+    align-items: stretch;
+    overflow: hidden;
   }
   
   /* Adjust headings for tablet */
@@ -909,6 +946,10 @@ h2 {
   .viz-controls-info {
     flex-direction: column;
     gap: 15px;
+    height: 100%;
+    min-height: 0;
+    align-items: stretch;
+    overflow: hidden;
   }
   
   .filter-container,
@@ -919,7 +960,8 @@ h2 {
   
   .viz-grid {
     gap: 15px;
-    height: 75vh;
+    height: var(--viz-grid-h, 75vh);
+    align-items: stretch;
   }
   
   /* Mobile adjustments */
@@ -1024,8 +1066,9 @@ h2 {
   }
   
   .viz-grid {
-    height: 70vh;
+    height: var(--viz-grid-h, 70vh);
     gap: 12px;
+    align-items: stretch;
   }
 }
 
@@ -1241,18 +1284,10 @@ h2 {
 @media (prefers-reduced-motion: reduce) {
   .cta-top-btn.pill { animation: none !important; }
 }
-/* ===== End Discover More animation updates ===== */
-
-/* ===== LEGACY STYLES (Hidden/Deprecated) ===== */
 
 /* Hide old card styles that conflict with new layout */
 .viz-card {
   display: none;
-}
-
-.layout-card-left,
-.layout-vertical {
-  /* Reset these layout classes */
 }
 
 .viz-placeholder {
@@ -1278,7 +1313,7 @@ h2 {
     justify-content: center;
     gap: 6px;
     padding: 12px 18px;
-    border-radius: 999px;
+    border-radius: 12px;
     background: var(--brand);
     color: #fff;
     border: none;
@@ -1319,4 +1354,332 @@ body[data-theme="dark"] {
     --accent: #57c2b6;
     --accent-2: #f5c257;
     --border: #1f2a3f;
+}
+
+/* Visualization 2: right column layout and cards */
+#blank2-section .viz-grid {
+  grid-template-columns: 70% 30%;
+  gap: 20px;
+  align-items: stretch; /* ensure both columns fill the row height */
+}
+
+/* Right column stack: filter card above info panel */
+#blank2-section .viz-controls-info {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+  min-height: 0;           /* critical for flex children to shrink inside */
+  width: 100%;
+  box-sizing: border-box;
+  align-items: stretch;
+  overflow: hidden;        /* prevent children from bleeding outside */
+}
+
+/* Filter card */
+#blank2-section .control-card {
+  flex: 0 0 auto;      /* do not stretch vertically */
+  background: #ffffff;
+  border: 1px solid #e6eaf2;
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+}
+#blank2-section .control-title {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 800;
+  color: #003f7f;
+}
+#blank2-section .filter-form label {
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+  color: #333;
+}
+#blank2-section .filter-form select {
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 14px;
+}
+
+/* Info panel: flex layout to pin actions at bottom and avoid overflow */
+#blank2-section .info-panel {
+  background: linear-gradient(135deg, #075db3 0%, #003f7f 100%);
+  color: #ffffff;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.18);
+  display: flex;           /* switched from grid to flex to control overflow */
+  flex-direction: column;
+  gap: 10px;
+  flex: 1 1 auto;          /* occupy remaining height below the filter card */
+  min-height: 0;           /* allow shrinking inside parent */
+  overflow: auto;          /* internal scroll for long content */
+}
+#blank2-section .info-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+#blank2-section .info-points {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+  overflow-wrap: anywhere;
+}
+#blank2-section .info-points li {
+  position: relative;
+  padding-left: 22px;
+  margin: 8px 0;
+  line-height: 1.5;
+  
+}
+#blank2-section .info-points li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 2px;
+  font-size: 16px;
+  line-height: 1;
+  color: #ffffff;
+}
+
+/* Rounded inner panel placeholder to match screenshot */
+#blank2-section .panel-placeholder {
+  flex: 1 1 auto;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.12);
+  border: 1px dashed rgba(255,255,255,0.20);
+  min-height: 180px;
+  max-width: 100%;
+}
+
+/* Section actions inside info panel: bottom-centered */
+#blank2-section .section-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: auto; /* pin to bottom of info-panel */
+}
+
+/* Icon size and spacing */
+#blank2-section .btn-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+#blank2-section .btn-text {
+  font-weight: 700;
+}
+
+/* Jump animations */
+@keyframes jumpDown { 0%,100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
+@keyframes jumpUp { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
+#blank2-section .btn-pill.scroll-down { animation: jumpDown 2s ease-in-out infinite; }
+#blank2-section .btn-pill.back-up { animation: jumpUp 2s ease-in-out infinite; }
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  #blank2-section .btn-pill.scroll-down,
+  #blank2-section .btn-pill.back-up { animation: none !important; }
+}
+
+/* Visually hidden text helper */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0);
+  white-space: nowrap; border: 0;
+}
+
+/* Pill buttons */
+#blank2-section .btn-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 13px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 180ms ease, background 160ms ease, color 160ms ease, border-color 160ms ease;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.10);
+}
+#blank2-section .btn-pill i {
+  font-size: 18px;
+  line-height: 1;
+}
+#blank2-section .btn-pill.primary {
+  background: #ffffff;
+  color: #003f7f;
+  border-color: rgba(255,255,255,0.6);
+}
+#blank2-section .btn-pill.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(0,0,0,0.14);
+  background: #f9fafb;
+}
+#blank2-section .btn-pill.secondary {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: rgba(255,255,255,0.6);
+}
+#blank2-section .btn-pill.secondary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(0,0,0,0.14);
+  background: #f9fafb;
+}
+
+/* Accessibility: focus-visible ring */
+#blank2-section .btn-pill:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.45), 0 10px 18px rgba(0,0,0,0.14);
+}
+
+/* Responsive tweaks to match reference at smaller sizes */
+@media (max-width: 1024px) {
+  #blank2-section .viz-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: 60% 40%;
+    gap: 16px;
+  }
+  #blank2-section .viz-controls-info {
+    flex-direction: row;
+    gap: 16px;
+    min-height: 0;
+    align-items: stretch;
+    height: 100%;
+    overflow: hidden;
+  }
+  #blank2-section .control-card {
+    flex: 1 1 40%;
+  }
+  #blank2-section .info-panel {
+    flex: 1 1 60%;
+    min-height: 0;
+    overflow: auto;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  #blank2-section .viz-controls-info {
+    flex-direction: column;
+    min-height: 0;
+    align-items: stretch;
+    height: 100%;
+    overflow: hidden;
+  }
+  #blank2-section .control-card {
+    flex: 0 0 auto;
+    max-width: 100%;
+  }
+  #blank2-section .info-panel {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-width: 100%;
+    overflow: auto;
+  }
+  #blank2-section .section-actions {
+    justify-content: center;
+    gap: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #blank2-section .btn-pill {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* Control card filter form: two-column grid */
+.control-card .filter-form {
+  display: grid;
+  grid-template-columns: auto 1fr; /* label | select */
+  align-items: center;
+  column-gap: 12px;
+  row-gap: 12px;
+}
+
+/* Label styling scoped to control-card form */
+.control-card .filter-form .field-label {
+  font-weight: 600;
+  color: #333;
+}
+
+/* Period component */
+#blank2-section .period-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: center; }
+
+/* Jurisdiction multi-select dropdown */
+#blank2-section .multi-select { position: relative; }
+#blank2-section .multi-toggle {
+  width: 100%;
+  padding: 10px 44px 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 14px;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease, box-shadow 180ms ease, transform 120ms ease;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2364748b' viewBox='0 0 16 16'><path d='M4.646 6.646a.5.5 0 0 1 .708 0L8 9.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 16px 16px;
+}
+#blank2-section .multi-toggle:hover {
+  background: #f9fafb;
+  border-color: #b6c2d6;
+}
+#blank2-section .multi-toggle:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 4px rgba(99,102,241,0.25);
+  border-color: #94a3b8;
+}
+#blank2-section .multi-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 100%;
+  /* max-height: 240px; */
+  overflow: auto;
+  background: #fff;
+  border: 1px solid #e6eaf2;
+  border-radius: 6px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+  display: none;
+  z-index: 20;
+  /* padding: 8px; */
+}
+#blank2-section .multi-select[aria-expanded="true"] .multi-menu { display: block; }
+#blank2-section .multi-menu label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #0f172a;
+}
+#blank2-section .multi-menu label:hover { background: #f5f7fb; }
+#blank2-section .multi-menu input[type="checkbox"] { accent-color: #075db3; }
+
+/* Responsive: stack label above select on small screens */
+@media (max-width: 480px) {
+  .control-card .filter-form {
+    grid-template-columns: 1fr;
+  }
+  .control-card .filter-form .field-label {
+    margin-bottom: 4px;
+  }
 }
