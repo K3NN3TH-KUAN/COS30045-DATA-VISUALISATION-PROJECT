@@ -43,7 +43,7 @@
     // Icon geometry on a 36x36 grid, scaled to button size.
     // Enter: four outward corners (open square corners)
     // Exit: four inward corners (corners pointing toward center)
-    if (!full) {
+    if (full) {
       // Enter fullscreen
       return [
         'M 8 14 H 14 V 8',       // top-left outward
@@ -393,7 +393,7 @@
         .style('font-weight', '700')
         .style('font-size', '18px')
         .style('fill', '#222')
-        .text('Fines per 10,000 licences by jurisdiction — ' + year);
+        .text('Fines per 10,000 Licences by Jurisdiction in ' + year);
 
       // Always-on callouts: one container per region, arranged in two columns
       var callouts = g.append('g').attr('class', 'callouts');

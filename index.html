@@ -26,7 +26,7 @@
                     <span>Scroll Down</span>
                 </button>
 
-            <div class="footer-bar lp-fade" style="--fade-delay: 480ms;">
+            <div class="footer-bar">
                 <span>@COS30045 Data Visualisation Project</span>
                 <span>Voong Zhe Hong, Alvin, Kenneth</span>
             </div>
@@ -219,38 +219,46 @@
 
         <!-- Visualisation 3 Section -->
         <section class="viz-section snap-section" id="blank3-section">
-            <button class="back-btn" onclick="scrollPrev()">⬆ Back</button>
-            
             <div class="viz-grid">
                 <!-- Chart area (70% on RIGHT for section 5) -->
                 <div class="viz-chart">
-                    <div class="chart-card">
+                    <div class="chart-card" role="figure" aria-label="Annual fines per 10,000 drivers map">
                         <div id="chart3" class="chart-host"></div>
                     </div>
                 </div>
                 
                 <!-- Controls and info area (30% on LEFT for section 5) -->
-                <div class="viz-controls-info">
+                <div class="viz-controls-info" aria-label="Controls and insights">
                     <!-- Filter controls at top -->
-                    <div class="filter-container">
-                        <div class="viz-controls compact">
-                            <label>Year <select id="year3-select"></select></label>
-                            <div class="btn-group">
-                                <button id="zoom-out" class="toggle" aria-label="Zoom out">−</button>
-                                <button id="zoom-in" class="toggle" aria-label="Zoom in">+</button>
+                    <section class="control-card" aria-labelledby="filters3-title">
+                        <form class="filter-form" aria-describedby="filters3-title">
+                            <label class="field-label" id="year3-label">Year</label>
+                            <div class="period-row" role="group" aria-labelledby="year3-label">
+                                <label class="visually-hidden" for="year3-select">Year</label>
+                                <select id="year3-select" aria-label="Year"></select>
                             </div>
-                        </div>
-                    </div>
+                        </form>
+                    </section>
                     
-                    <!-- Description container at bottom -->
-                    <aside class="description-container">
-                        <h2>Effectiveness of Enforcement Methods</h2>
-                        <ul>
-                            <li>ACT and NSW have the highest fines per 10,000 drivers.</li>
+                    <!-- Info panel with consistent styling -->
+                    <aside class="info-panel" role="complementary" aria-labelledby="info3-title">
+                        <h2 id="info3-title" class="info-title">Key Findings</h2>
+                        <ul class="info-points" role="list">
+                            <li>In 2024, Australian Capital Territory and New South Wales have the highest fines per 10,000 drivers.</li>
                             <li>Earlier and wider camera deployment in these states.</li>
-                            <li>Camera enforcement appears more effective than police-only.</li>
+                            <li>Northern Territory and Western Australia had the lowest fines rate overall.</li>
+                            <li>Camera enforcement appears more effective than police.</li>
                         </ul>
-                        <button class="scroll-btn lp-fade" onclick="scrollNext()" style="--fade-delay: 360ms;">Scroll Down ↓</button>
+                        <div class="section-actions" aria-label="Section actions">
+                            <button class="btn-pill primary scroll-down" type="button" onclick="scrollNext()" aria-label="Scroll Down">
+                                <i class="btn-icon bi bi-arrow-down" aria-hidden="true"></i>
+                                <span class="btn-text">Scroll Down</span>
+                            </button>
+                            <button class="btn-pill secondary back-up" type="button" onclick="scrollPrev()" aria-label="Back">
+                                <i class="btn-icon bi bi-arrow-up" aria-hidden="true"></i>
+                                <span class="btn-text">Back</span>
+                            </button>
+                        </div>
                     </aside>
                 </div>
             </div>
@@ -299,9 +307,11 @@
                 <span class="pill-icon" aria-hidden="true"><i class="bi bi-arrow-up"></i></span>
                 <span>Back to Top</span>
             </button>
-        
-            <p class="cta-meta fade-on-scroll" style="--fade-delay: 560ms;">Voong Zhe Hong, Alvin, Kenneth</p>
-            <p class="cta-meta fade-on-scroll" style="--fade-delay: 660ms;">COS30045 Data Visualisation Project</p>
+            
+            <div class="footer-bar">
+                <span>@COS30045 Data Visualisation Project</span>
+                <span>Voong Zhe Hong, Alvin, Kenneth</span>
+            </div>
         </section>
 
         <!-- Load D3.js -->

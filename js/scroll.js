@@ -146,9 +146,8 @@ document.addEventListener('DOMContentLoaded', function () {
         entries.forEach(entry => {
           const el = entry.target;
           if (entry.isIntersecting) el.classList.add('visible');
-          else el.classList.remove('visible');
         });
-      }, { root: null, threshold: 0.25, rootMargin: '0px 0px -10% 0px' });
+      }, { root: null, threshold: 0.15, rootMargin: '0px 0px -10% 0px' });
       items.forEach(el => itemsObserver.observe(el));
 
       const sectionObserver = new IntersectionObserver((entries) => {
