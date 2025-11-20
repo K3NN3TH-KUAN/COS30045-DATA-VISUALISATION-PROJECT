@@ -305,9 +305,9 @@ body {
 }
 
 /* Compact all text elements */
-#chart3 text {
+/* #chart3 text {
   font-size: 11px !important;
-}
+} */
 
 #chart3 .hover-info {
   font-size: 11px !important;
