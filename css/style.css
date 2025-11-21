@@ -1453,6 +1453,7 @@ body[data-theme="dark"] {
   flex: 1 1 auto;          /* occupy remaining height below the filter card */
   min-height: 0;           /* allow shrinking inside parent */
   overflow: hidden;
+  position: relative;      /* allow absolute centering of dot toggle */
 }
 #blank1-section .info-title, 
 #blank2-section .info-title,
@@ -1488,6 +1489,52 @@ body[data-theme="dark"] {
   font-size: 16px;
   line-height: 1;
   color: #ffffff;
+}
+
+/* ===== Info panel views toggle (two dots) ===== */
+#blank3-section .panel-toggle {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Toggle buttons */
+#blank3-section .panel-toggle .panel-tab {
+  background: rgba(255,255,255,0.18);
+  color: #ffffff;
+  border: 1px solid rgba(255,255,255,0.35);
+  border-radius: 16px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+#blank3-section .panel-toggle .panel-tab.active {
+  background: #ffffff;
+  color: #003f7f;
+}
+
+/* Panel views */
+#blank3-section .panel-view { flex: 1 1 auto; min-height: 0; padding-top: 18px; }
+#blank3-section .panel-view[hidden] { display: none !important; }
+
+/* Bar chart view: white card background inside blue panel */
+#blank3-section #info3-bars {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  padding: 14px 10px 10px 10px; /* extra top padding inside card */
+  margin-top: 34px;            /* create space below the toggle buttons */
+  display: flex;
+  flex-direction: column;
+}
+#blank3-section #info3-bars .chart-host {
+  flex: 1;
+  min-height: 0;
 }
 
 /* Rounded inner panel placeholder to match screenshot */
