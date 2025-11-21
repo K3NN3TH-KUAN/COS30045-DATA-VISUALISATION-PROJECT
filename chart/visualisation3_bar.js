@@ -2,7 +2,8 @@
 (function(){
   var containerId = 'chart3-bars';
   var csvPath = 'data/visualisation3.csv';
-  var state = { data: null, svg: null, g: null, margin: { top: 48, right: 40, bottom: 36, left: 90 }, width: 0, height: 0 };
+  var state = { data: null, svg: null, g: null, margin: { top: 48, right: 40, bottom: 36, left: 90 }, width: 0, height: 0, focusedAbbr: null };
+  var nameByAbbr = { NSW:'New South Wales', VIC:'Victoria', QLD:'Queensland', SA:'South Australia', WA:'Western Australia', TAS:'Tasmania', NT:'Northern Territory', ACT:'Australian Capital Territory' };
 
   function getContainer(){ return document.getElementById(containerId); }
   function currentYear(){
@@ -29,6 +30,31 @@
         .attr('preserveAspectRatio','none')
         .style('font-family','Segoe UI, Arial, sans-serif');
       state.g = state.svg.append('g').attr('transform','translate(' + state.margin.left + ',' + state.margin.top + ')');
+      // Tooltip container (HTML)
+      var tipHost = document.getElementById('bar3-tip');
+      if (!tipHost){
+        tipHost = document.createElement('div');
+        tipHost.id = 'bar3-tip';
+        tipHost.style.position = 'absolute';
+        tipHost.style.pointerEvents = 'none';
+        tipHost.style.background = '#e9edf2';
+        tipHost.style.border = '1px solid #9aa5b1';
+        tipHost.style.borderRadius = '8px';
+        tipHost.style.padding = '8px 10px';
+        tipHost.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+        tipHost.style.fontSize = '12px';
+        tipHost.style.color = '#1f2937';
+        tipHost.style.display = 'none';
+        tipHost.style.zIndex = '5';
+        tipHost.style.left = '0';
+        tipHost.style.top = '0';
+        tipHost.style.transform = 'translate(0px,0px)';
+        tipHost.style.transition = 'transform 100ms ease-out, opacity 120ms ease-out';
+        tipHost.style.willChange = 'transform';
+        // attach to the info panel card (#info3-bars) to position inside
+        var infoCard = document.getElementById('info3-bars');
+        if (infoCard) { infoCard.style.position = 'relative'; infoCard.appendChild(tipHost); }
+      }
     } else {
       state.svg.attr('width', totalW).attr('height', totalH);
     }
@@ -41,7 +67,9 @@
         return {
           YEAR: +r['YEAR'],
           JURISDICTION: r['JURISDICTION'],
-          RATE: +r['LICENCES_PER_10,000']
+          RATE: (r['LICENCES_PER_10,000'] == null || (typeof r['LICENCES_PER_10,000'] === 'string' && r['LICENCES_PER_10,000'].trim() === '')) ? null : +r['LICENCES_PER_10,000'],
+          FINES: (r['Sum(FINES)'] == null || (typeof r['Sum(FINES)'] === 'string' && r['Sum(FINES)'].trim() === '')) ? null : +r['Sum(FINES)'],
+          TOTAL_LICENCES: (r['TOTAL_LICENCES'] == null || (typeof r['TOTAL_LICENCES'] === 'string' && r['TOTAL_LICENCES'].trim() === '')) ? null : +r['TOTAL_LICENCES']
         };
       });
       cb();
@@ -93,7 +121,7 @@
 
     // Bars
     var barColor = null;
-    state.g.selectAll('.bar')
+    var bars = state.g.selectAll('.bar')
       .data(rows)
       .enter()
       .append('rect')
@@ -103,7 +131,59 @@
       .attr('width', function(d){ return x(d.RATE); })
       .attr('height', y.bandwidth())
       .attr('rx', 3)
-      .attr('fill', function(d){ return color(d.RATE); });
+      .attr('fill', function(d){ return color(d.RATE); })
+      .style('cursor','pointer')
+      .on('mouseover', function(event, d){
+        var tip = document.getElementById('bar3-tip'); if (!tip) return;
+        var full = (nameByAbbr[d.JURISDICTION] || d.JURISDICTION) + ' (' + d.JURISDICTION + ')';
+        var rateTxt = (d.RATE != null && isFinite(d.RATE)) ? d3.format('.2f')(d.RATE) : 'N/A';
+        var finesTxt = (d.FINES != null && isFinite(d.FINES)) ? d3.format(',d')(d.FINES) : 'N/A';
+        var licTxt = (d.TOTAL_LICENCES != null && isFinite(d.TOTAL_LICENCES)) ? d3.format(',d')(d.TOTAL_LICENCES) : 'N/A';
+        tip.innerHTML = '<div style="font-weight:600;text-align:center;margin-bottom:4px">' + full + '</div>'+
+                        '<div style="display:flex;gap:18px"><div>Fines per 10,000</div><div style="margin-left:auto">' + rateTxt + '</div></div>'+
+                        '<div style="display:flex;gap:18px"><div>Fines</div><div style="margin-left:auto">' + finesTxt + '</div></div>'+
+                        '<div style="display:flex;gap:18px"><div>Licences</div><div style="margin-left:auto">' + licTxt + '</div></div>';
+        tip.style.display = 'block';
+        positionTipToPointer(event);
+      })
+      .on('mousemove', function(event){ positionTipToPointer(event); })
+      .on('mouseout', function(){ var tip = document.getElementById('bar3-tip'); if (tip) tip.style.display='none'; })
+      .on('click', function(event, d){
+        // focus selection in bars and sync to map
+        state.focusedAbbr = (state.focusedAbbr === d.JURISDICTION) ? null : d.JURISDICTION;
+        applyBarFocus();
+        if (window.chart3Api && typeof window.chart3Api.focusJurisdiction === 'function') {
+          window.chart3Api.focusJurisdiction(state.focusedAbbr || null);
+        }
+      });
+
+    function applyBarFocus(){
+      state.g.selectAll('rect.bar')
+        .attr('opacity', function(dd){ return (!state.focusedAbbr || dd.JURISDICTION === state.focusedAbbr) ? 1 : 0.35; })
+        .attr('stroke', function(dd){ return (state.focusedAbbr && dd.JURISDICTION === state.focusedAbbr) ? '#0f172a' : 'none'; })
+        .attr('stroke-width', function(dd){ return (state.focusedAbbr && dd.JURISDICTION === state.focusedAbbr) ? 1.2 : 0; });
+      state.g.selectAll('text.val')
+        .attr('opacity', function(dd){ return (!state.focusedAbbr || dd.JURISDICTION === state.focusedAbbr) ? 1 : 0.35; });
+    }
+
+    // Expose API for map to sync focus on bars
+    if (!window.chart3BarsApi) window.chart3BarsApi = {};
+    window.chart3BarsApi.focusJurisdiction = function(code){
+      state.focusedAbbr = code || null;
+      applyBarFocus();
+    };
+
+    function positionTipToPointer(event){
+      var tip = document.getElementById('bar3-tip'); var card = document.getElementById('info3-bars');
+      if (!tip || !card) return;
+      var rect = card.getBoundingClientRect();
+      var xPos = (event.clientX - rect.left) + 14;
+      var yPos = (event.clientY - rect.top) + 14;
+      var w = tip.offsetWidth || 160; var h = tip.offsetHeight || 80;
+      xPos = Math.max(8, Math.min(xPos, card.clientWidth - w - 8));
+      yPos = Math.max(8, Math.min(yPos, card.clientHeight - h - 8));
+      tip.style.transform = 'translate(' + xPos + 'px,' + yPos + 'px)';
+    }
 
     // Left labels (jurisdictions)
     state.g.append('g')
@@ -142,6 +222,21 @@
       .style('fill','#0f172a')
       .style('font-size','12px')
       .text('Rate per 10,000');
+
+    // Y-axis title
+    state.svg.selectAll('.y-axis-title').remove();
+    state.svg.append('text')
+      .attr('class','y-axis-title')
+      .attr('transform','rotate(-90)')
+      .attr('x', -(state.margin.top + state.height / 2))
+      .attr('y', Math.max(12, state.margin.left - 72))
+      .attr('text-anchor','middle')
+      .style('fill','#0f172a')
+      .style('font-size','12px')
+      .text('Jurisdiction');
+
+    // apply focus styling after render
+    applyBarFocus();
   }
 
   function draw(){ loadData(function(){ renderBars(currentYear()); }); }

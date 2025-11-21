@@ -187,40 +187,40 @@
     var lastHoverAbbr = null;
 
   function updateFocus(abbr) {
-      focusedAbbr = abbr || null;
-      var hasData = currentValueByAbbr && currentColorScale;
-      g.selectAll('path.state')
-        .interrupt()
-        .transition().duration(350).ease(d3.easeBackOut)
-        .attr('opacity', function (d) {
-          if (!focusedAbbr) return 1;
-          var name = getFeatureName(d);
-          var a = abbrByName[name];
-          return a === focusedAbbr ? 1 : 0.25;
-        })
-        .attr('stroke-width', function (d) {
-          if (!focusedAbbr) return 1;
-          var name = getFeatureName(d);
-          var a = abbrByName[name];
-          return a === focusedAbbr ? 0.9 : 1;
-        })
-        .attr('stroke', function (d) {
-          if (!focusedAbbr) return '#888';
-          var name = getFeatureName(d);
-          var a = abbrByName[name];
-          return a === focusedAbbr ? '#000' : '#888';
-        })
-        .attr('fill', function (d) {
-          var name = getFeatureName(d);
-          var a = abbrByName[name];
-          if (!hasData || !a) return '#eee';
-          var v = currentValueByAbbr[a];
-          var baseFill = (v == null || isNaN(v)) ? '#eee' : currentColorScale(v);
-          if (focusedAbbr && a === focusedAbbr) {
-            return d3.hsl(baseFill).darker(0.7).toString();
-          }
-          return baseFill;
-        });
+    focusedAbbr = abbr || null;
+    var hasData = currentValueByAbbr && currentColorScale;
+    g.selectAll('path.state')
+      .interrupt()
+      .transition().duration(350).ease(d3.easeBackOut)
+      .attr('opacity', function (d) {
+        if (!focusedAbbr) return 1;
+        var name = getFeatureName(d);
+        var a = abbrByName[name];
+        return a === focusedAbbr ? 1 : 0.25;
+      })
+      .attr('stroke-width', function (d) {
+        if (!focusedAbbr) return 1;
+        var name = getFeatureName(d);
+        var a = abbrByName[name];
+        return a === focusedAbbr ? 0.9 : 1;
+      })
+      .attr('stroke', function (d) {
+        if (!focusedAbbr) return '#888';
+        var name = getFeatureName(d);
+        var a = abbrByName[name];
+        return a === focusedAbbr ? '#000' : '#888';
+      })
+      .attr('fill', function (d) {
+        var name = getFeatureName(d);
+        var a = abbrByName[name];
+        if (!hasData || !a) return '#eee';
+        var v = currentValueByAbbr[a];
+        var baseFill = (v == null || isNaN(v)) ? '#eee' : currentColorScale(v);
+        if (focusedAbbr && a === focusedAbbr) {
+          return d3.hsl(baseFill).darker(0.7).toString();
+        }
+        return baseFill;
+      });
 
       // Dim/restore callout containers and leader lines based on focus
       var dimDefault = 0.08;  // default: slightly deeper transparency
@@ -262,6 +262,15 @@
           if (!focusedAbbr) return dimDefault;
           return a === focusedAbbr ? full : dimOthers;
         });
+
+      // Sync focus to the bar chart
+      if (window.chart3BarsApi && typeof window.chart3BarsApi.focusJurisdiction === 'function') {
+        window.chart3BarsApi.focusJurisdiction(focusedAbbr || null);
+      }
+
+      // expose simple API for external charts to sync focus
+      if (!window.chart3Api) window.chart3Api = {};
+      window.chart3Api.focusJurisdiction = function(code){ updateFocus(code); };
     }
 
     function draw(year) {
