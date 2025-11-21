@@ -240,15 +240,31 @@
                         </form>
                     </section>
                     
-                    <!-- Info panel with consistent styling -->
+                    <!-- Info panel with two views: description and horizontal bar chart -->
                     <aside class="info-panel" role="complementary" aria-labelledby="info3-title">
-                        <h2 id="info3-title" class="info-title">Key Findings</h2>
-                        <ul class="info-points" role="list">
-                            <li>In 2024, Australian Capital Territory and New South Wales have the highest fines per 10,000 drivers.</li>
-                            <li>Earlier and wider camera deployment in these states.</li>
-                            <li>Northern Territory and Western Australia had the lowest fines rate overall.</li>
-                            <li>Camera enforcement appears more effective than police.</li>
-                        </ul>
+                        <!-- Toggle at top center: Description | Bar Chart -->
+                        <div class="panel-toggle" role="tablist" aria-label="Info panel views">
+                            <button id="btn-desc" class="panel-tab active" role="tab" aria-selected="true" aria-controls="info3-desc" title="Description">Description</button>
+                            <button id="btn-bars" class="panel-tab" role="tab" aria-selected="false" aria-controls="info3-bars" title="Bar chart">Bar Chart</button>
+                        </div>
+
+                        <!-- Description view -->
+                        <div id="info3-desc" class="panel-view active" role="tabpanel" aria-labelledby="dot-desc">
+                            <h2 id="info3-title" class="info-title">Key Findings</h2>
+                            <ul class="info-points" role="list">
+                                <li>In 2024, Australian Capital Territory and New South Wales have the highest fines per 10,000 drivers.</li>
+                                <li>Earlier and wider camera deployment in these states.</li>
+                                <li>Northern Territory and Western Australia had the lowest fines rate overall.</li>
+                                <li>Camera enforcement appears more effective than police.</li>
+                            </ul>
+                        </div>
+
+                        <!-- Horizontal bar chart view -->
+                        <div id="info3-bars" class="panel-view" role="tabpanel" aria-labelledby="dot-bars" hidden>
+                            <div id="chart3-bars" class="chart-host"></div>
+                        </div>
+
+                        <!-- Section actions pinned at bottom -->
                         <div class="section-actions" aria-label="Section actions">
                             <button class="btn-pill primary scroll-down" type="button" onclick="scrollNext()" aria-label="Scroll Down">
                                 <i class="btn-icon bi bi-arrow-down" aria-hidden="true"></i>
@@ -319,6 +335,7 @@
         <script src="chart/visualisation1.js"></script>
         <script src="chart/visualisation2.js"></script>
         <script src="chart/visualisation3.js"></script>
+        <script src="chart/visualisation3_bar.js"></script>
         <script src="js/documentation.js"></script>
         <script src="js/interaction.js"></script>
         <script src="js/scroll.js"></script>
