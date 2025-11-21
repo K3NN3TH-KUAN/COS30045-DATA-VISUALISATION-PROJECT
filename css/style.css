@@ -1422,6 +1422,20 @@ body[data-theme="dark"] {
   color: #333;
 }
 
+#blank3-section .filter-form label {
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+  color: #333;
+}
+#blank3-section .filter-form select {
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 14px;
+}
+
 #blank1-section .filter-form label, 
 #blank2-section .filter-form label {
   display: grid;
@@ -1831,3 +1845,31 @@ body[data-theme="dark"] {
     margin-bottom: 4px;
   }
 }
+/* Fifth section checkbox dropdown for detection method */
+#blank3-section .dropdown-checkbox { position: relative; display: inline-block; }
+#blank3-section .dropdown-checkbox .dropdown-btn {
+  display: inline-block;
+  width: 100%;
+  max-width: 320px;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  color: #0f172a;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+#blank3-section .dropdown-checkbox .dropdown-panel {
+  position: absolute;
+  z-index: 10;
+  margin-top: 6px;
+  width: 100%;
+  max-width: 320px;
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  box-shadow: 0 8px 20px rgba(2, 6, 23, 0.1);
+}
+#blank3-section .dropdown-checkbox .opt { display: flex; align-items: center; gap: 8px; padding: 6px 4px; color: #0f172a; }
+#blank3-section .dropdown-checkbox .opt input[type="checkbox"] { width: 16px; height: 16px; }
