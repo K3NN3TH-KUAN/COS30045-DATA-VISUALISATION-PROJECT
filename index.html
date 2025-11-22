@@ -5,6 +5,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Mobile Phone Use Enforcement in Australia</title>
         <link rel="stylesheet" href="css/style.css">
+        <!-- Site icon / favicon -->
+        <link rel="icon" href="assets/image/logo.png" type="image/png" sizes="32x32">
+        <link rel="icon" href="assets/image/logo.png" type="image/png" sizes="16x16">
+        <link rel="apple-touch-icon" href="assets/image/logo.png">  
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     </head>
 
@@ -236,6 +240,17 @@
                             <div class="period-row" role="group" aria-labelledby="year3-label">
                                 <label class="visually-hidden" for="year3-select">Year</label>
                                 <select id="year3-select" aria-label="Year"></select>
+                            </div>
+                                <label class="field-label" for="det3-method">Detection Method</label>
+                                <div id="det3-method" class="dropdown-checkbox" aria-label="Detection Method">
+                                <button type="button" class="dropdown-btn" aria-haspopup="listbox" aria-expanded="false">Select all</button>
+                                <div class="dropdown-panel" role="listbox" hidden>
+                                    <label class="opt"><input type="checkbox" id="det3-all" data-method="All" checked> Select all</label>
+                                    <label class="opt"><input type="checkbox" data-method="Fixed camera"> Fixed camera</label>
+                                    <label class="opt"><input type="checkbox" data-method="Fixed or mobile camera"> Fixed or mobile camera</label>
+                                    <label class="opt"><input type="checkbox" data-method="Mobile camera"> Mobile camera</label>
+                                    <label class="opt"><input type="checkbox" data-method="Police issued"> Police issued</label>
+                                </div>
                             </div>
                         </form>
                     </section>
