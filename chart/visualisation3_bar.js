@@ -2,7 +2,8 @@
 (function(){
   var containerId = 'chart3-bars';
   var csvPath = 'data/visualisation3.csv';
-  var state = { data: null, svg: null, g: null, margin: { top: 48, right: 40, bottom: 36, left: 90 }, width: 0, height: 0, focusedAbbr: null };
+  var detCsvPath = 'data/visualisation4.csv';
+  var state = { data: null, detData: null, svg: null, g: null, margin: { top: 48, right: 40, bottom: 36, left: 90 }, width: 0, height: 0, focusedAbbr: null };
   var nameByAbbr = { NSW:'New South Wales', VIC:'Victoria', QLD:'Queensland', SA:'South Australia', WA:'Western Australia', TAS:'Tasmania', NT:'Northern Territory', ACT:'Australian Capital Territory' };
 
   function getContainer(){ return document.getElementById(containerId); }
@@ -61,12 +62,27 @@
   }
 
   function loadData(cb){
-    if (state.data) { cb(); return; }
-    d3.csv(csvPath).then(function(rows){
+    if (state.data && state.detData) { cb(); return; }
+    Promise.all([
+      d3.csv(csvPath),
+      d3.csv(detCsvPath)
+    ]).then(function(res){
+      var rows = res[0] || [];
+      var det = res[1] || [];
       state.data = rows.map(function(r){
         return {
           YEAR: +r['YEAR'],
           JURISDICTION: r['JURISDICTION'],
+          RATE: (r['LICENCES_PER_10,000'] == null || (typeof r['LICENCES_PER_10,000'] === 'string' && r['LICENCES_PER_10,000'].trim() === '')) ? null : +r['LICENCES_PER_10,000'],
+          FINES: (r['Sum(FINES)'] == null || (typeof r['Sum(FINES)'] === 'string' && r['Sum(FINES)'].trim() === '')) ? null : +r['Sum(FINES)'],
+          TOTAL_LICENCES: (r['TOTAL_LICENCES'] == null || (typeof r['TOTAL_LICENCES'] === 'string' && r['TOTAL_LICENCES'].trim() === '')) ? null : +r['TOTAL_LICENCES']
+        };
+      });
+      state.detData = det.map(function(r){
+        return {
+          YEAR: +r['YEAR'],
+          JURISDICTION: r['JURISDICTION'],
+          DETECTION_METHOD: r['DETECTION_METHOD'],
           RATE: (r['LICENCES_PER_10,000'] == null || (typeof r['LICENCES_PER_10,000'] === 'string' && r['LICENCES_PER_10,000'].trim() === '')) ? null : +r['LICENCES_PER_10,000'],
           FINES: (r['Sum(FINES)'] == null || (typeof r['Sum(FINES)'] === 'string' && r['Sum(FINES)'].trim() === '')) ? null : +r['Sum(FINES)'],
           TOTAL_LICENCES: (r['TOTAL_LICENCES'] == null || (typeof r['TOTAL_LICENCES'] === 'string' && r['TOTAL_LICENCES'].trim() === '')) ? null : +r['TOTAL_LICENCES']
@@ -80,7 +96,47 @@
     ensureSvg();
     if (!state.g || !state.data) return;
 
-    var rows = state.data.filter(function(d){ return d.YEAR === year; });
+    function getSelectedMethods(){
+      var cont = document.getElementById('det3-method');
+      if (!cont) return ['All'];
+      var all = cont.querySelector('#det3-all');
+      if (all && all.checked) return ['All'];
+      var opts = Array.from(cont.querySelectorAll('input[type="checkbox"][data-method]'))
+        .filter(function(b){ return b.id !== 'det3-all' && b.checked; })
+        .map(function(b){ return b.getAttribute('data-method'); });
+      return (opts.length ? opts : ['All']);
+    }
+    var sel = getSelectedMethods();
+    var rows;
+    if (sel.length === 1 && sel[0] === 'All') {
+      rows = state.data.filter(function(d){ return d.YEAR === year; });
+    } else {
+      var matchers = sel.map(function(label){
+        if (/police/i.test(label)) return function(m){ return /police/i.test(m); };
+        if (/fixed or mobile camera/i.test(label)) return function(m){ return /fixed or mobile camera/i.test(m); };
+        if (/fixed camera/i.test(label)) return function(m){ return /fixed camera/i.test(m); };
+        if (/mobile camera/i.test(label)) return function(m){ return /mobile camera/i.test(m); };
+        if (/camera/i.test(label)) return function(m){ return /camera/i.test(m); };
+        return function(){ return false; };
+      });
+      var detRows = (state.detData || []).filter(function(d){ return d.YEAR === year && matchers.some(function(fn){ return fn(d.DETECTION_METHOD); }); });
+      var licByJur = {};
+      state.data.filter(function(d){ return d.YEAR === year; }).forEach(function(d){ licByJur[d.JURISDICTION] = d.TOTAL_LICENCES; });
+      var agg = {};
+      detRows.forEach(function(r){
+        var j = r.JURISDICTION;
+        var a = agg[j] || { YEAR: year, JURISDICTION: j, FINES: 0, TOTAL_LICENCES: licByJur[j] != null ? licByJur[j] : r.TOTAL_LICENCES, RATE: null };
+        if (r.FINES != null && !isNaN(r.FINES)) a.FINES += r.FINES;
+        agg[j] = a;
+      });
+      rows = Object.keys(agg).map(function(k){
+        var a = agg[k];
+        var L = a.TOTAL_LICENCES;
+        var F = a.FINES;
+        a.RATE = (L != null && L > 0 && F != null) ? (F / L) * 10000 : null;
+        return a;
+      });
+    }
     rows.sort(function(a,b){ return d3.descending(a.RATE, b.RATE); });
 
     var y = d3.scaleBand().domain(rows.map(function(d){ return d.JURISDICTION; })).range([0, state.height]).padding(0.2);
@@ -278,6 +334,16 @@
     });
   }
 
+  // Update chart when detection method changes (if bars are visible)
+  function hookMethodSelect(){
+    var sel = document.getElementById('det3-method');
+    if (!sel) return;
+    sel.addEventListener('change', function(){
+      var viewBars = document.getElementById('info3-bars');
+      if (viewBars && !viewBars.hasAttribute('hidden')) { draw(); }
+    });
+  }
+
   // Resize handling when bars are visible
   window.addEventListener('resize', function(){
     var viewBars = document.getElementById('info3-bars');
@@ -285,5 +351,5 @@
   });
 
   // Init
-  document.addEventListener('DOMContentLoaded', function(){ setupToggle(); hookYearSelect(); });
+  document.addEventListener('DOMContentLoaded', function(){ setupToggle(); hookYearSelect(); hookMethodSelect(); });
 })();

@@ -72,6 +72,9 @@
     .attr('transform', 'scale(' + (btnSize / 36) + ')');
   function positionFullscreenBtn(){
     fsBtn.attr('transform', 'translate(' + (margin.left + Math.max(0, width - (btnSize + 12))) + ',' + (margin.top + Math.max(0, height - (btnSize + 8))) + ')');
+    // Ensure the button is always on top and visible
+    if (typeof fsBtn.raise === 'function') fsBtn.raise();
+    fsBtn.style('display','');
   }
   function updateFsLabel(){
     fsBtn.select('rect').attr('fill', isFullscreen ? '#e5e7eb' : '#f3f4f6');
@@ -127,7 +130,7 @@
 
   var yearSelect = document.getElementById('year3-select');
 
-  // Load CSV data and GeoJSON
+  // Load CSV data (overall rates and detection methods) and GeoJSON
   Promise.all([
     d3.csv('data/visualisation3.csv', function (d) {
       return {
@@ -138,10 +141,21 @@
         RATE: (d['LICENCES_PER_10,000'] == null || (typeof d['LICENCES_PER_10,000'] === 'string' && d['LICENCES_PER_10,000'].trim() === '')) ? null : +d['LICENCES_PER_10,000']
       };
     }),
+    d3.csv('data/visualisation4.csv', function (d) {
+      return {
+        YEAR: +d.YEAR,
+        JURISDICTION: (d.JURISDICTION || '').replace(/"/g, ''),
+        DETECTION_METHOD: d.DETECTION_METHOD || '',
+        FINES: (d['Sum(FINES)'] == null || (typeof d['Sum(FINES)'] === 'string' && d['Sum(FINES)'].trim() === '')) ? null : +d['Sum(FINES)'],
+        TOTAL_LICENCES: (d['TOTAL_LICENCES'] == null || (typeof d['TOTAL_LICENCES'] === 'string' && d['TOTAL_LICENCES'].trim() === '')) ? null : +d['TOTAL_LICENCES'],
+        RATE: (d['LICENCES_PER_10,000'] == null || (typeof d['LICENCES_PER_10,000'] === 'string' && d['LICENCES_PER_10,000'].trim() === '')) ? null : +d['LICENCES_PER_10,000']
+      };
+    }),
     d3.json(geoUrl)
   ]).then(function (res) {
     var data = res[0];
-    var geo = res[1];
+    var detData = res[1];
+    var geo = res[2];
 
     var yearsMap = {}; data.forEach(function (d) { yearsMap[d.YEAR] = true; });
     var years = Object.keys(yearsMap).map(function (s) { return +s; }).sort(d3.ascending);
@@ -151,6 +165,65 @@
       var opt = document.createElement('option'); opt.value = y; opt.textContent = y; yearSelect.appendChild(opt);
     });
     yearSelect.value = years[years.length - 1];
+
+    // Detection method checkbox dropdown setup
+    var methodUI = document.getElementById('det3-method');
+    var method = {
+      container: methodUI,
+      btn: methodUI ? methodUI.querySelector('.dropdown-btn') : null,
+      panel: methodUI ? methodUI.querySelector('.dropdown-panel') : null,
+      all: methodUI ? methodUI.querySelector('#det3-all') : null,
+      boxes: methodUI ? Array.from(methodUI.querySelectorAll('input[type="checkbox"][data-method]')).filter(function(b){ return b.id !== 'det3-all'; }) : []
+    };
+    function selectedMethods(){
+      if (!methodUI) return ['All'];
+      if (method.all && method.all.checked) return ['All'];
+      var s = method.boxes.filter(function(b){ return b.checked; }).map(function(b){ return b.getAttribute('data-method'); });
+      return (s.length ? s : ['All']);
+    }
+    function updateSummary(){
+      if (!method.btn) return;
+      var s = selectedMethods();
+      method.btn.textContent = (s.length === 1 && s[0] === 'All') ? 'Select all' : s.join(', ');
+    }
+    if (methodUI) {
+      updateSummary();
+      if (method.btn) {
+        method.btn.addEventListener('click', function(){
+          var open = method.btn.getAttribute('aria-expanded') === 'true';
+          method.btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+          if (method.panel) method.panel.hidden = open;
+        });
+      }
+      function onChange(e){
+        var isAll = (e && e.target === method.all);
+        if (isAll) {
+          // Toggling Select all
+          if (method.all.checked) {
+            method.boxes.forEach(function(b){ b.checked = false; });
+          }
+        } else {
+          // Toggling an individual method: uncheck Select all and keep this selection
+          if (method.all) method.all.checked = false;
+        }
+        // Fallback: if none selected and Select all is not checked, re-enable Select all
+        if (!method.all.checked && !method.boxes.some(function(b){ return b.checked; })) {
+          method.all.checked = true;
+        }
+        updateSummary();
+        draw(+yearSelect.value);
+        // Notify other listeners (e.g., bars) that method selection changed
+        method.container.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      if (method.all) { method.all.addEventListener('change', onChange); }
+      method.boxes.forEach(function(b){ b.addEventListener('change', onChange); });
+      document.addEventListener('click', function(e){
+        if (!methodUI.contains(e.target)){
+          if (method.panel) method.panel.hidden = true;
+          if (method.btn) method.btn.setAttribute('aria-expanded','false');
+        }
+      });
+    }
 
     // Manual zoom controls
     var zoomK = 1;
@@ -274,7 +347,37 @@
     }
 
     function draw(year) {
-      var rows = data.filter(function (d) { return d.YEAR === year; });
+      var rows;
+      var sel = selectedMethods();
+      if (sel.length === 1 && sel[0] === 'All') {
+        rows = data.filter(function(d){ return d.YEAR === year; });
+      } else {
+        var matchers = sel.map(function(label){
+          if (/police/i.test(label)) return function(m){ return /police/i.test(m); };
+          if (/fixed or mobile camera/i.test(label)) return function(m){ return /fixed or mobile camera/i.test(m); };
+          if (/fixed camera/i.test(label)) return function(m){ return /fixed camera/i.test(m); };
+          if (/mobile camera/i.test(label)) return function(m){ return /mobile camera/i.test(m); };
+          if (/camera/i.test(label)) return function(m){ return /camera/i.test(m); };
+          return function(){ return false; };
+        });
+        var detRows = detData.filter(function(d){ return d.YEAR === year && matchers.some(function(fn){ return fn(d.DETECTION_METHOD); }); });
+        var licByJur = {};
+        data.filter(function(d){ return d.YEAR === year; }).forEach(function(d){ licByJur[d.JURISDICTION] = d.TOTAL_LICENCES; });
+        var agg = {};
+        detRows.forEach(function(r){
+          var j = r.JURISDICTION;
+          var a = agg[j] || { YEAR: year, JURISDICTION: j, FINES: 0, TOTAL_LICENCES: licByJur[j] != null ? licByJur[j] : r.TOTAL_LICENCES, RATE: null };
+          if (r.FINES != null && !isNaN(r.FINES)) a.FINES += r.FINES;
+          agg[j] = a;
+        });
+        rows = Object.keys(agg).map(function(k){
+          var a = agg[k];
+          var L = a.TOTAL_LICENCES;
+          var F = a.FINES;
+          a.RATE = (L != null && L > 0 && F != null) ? (F / L) * 10000 : null;
+          return a;
+        });
+      }
       var valueByAbbr = {};
       var rowByAbbr = {};
       rows.forEach(function (r) {
@@ -285,8 +388,7 @@
     
       var vals = rows.map(function (r) { return r.RATE; })
         .filter(function (v) { return v != null && !isNaN(v); });
-      var allVals = data.map(function (r) { return r.RATE; })
-        .filter(function (v) { return v != null && !isNaN(v); });
+      var allVals = vals.slice();
     
       var min = vals.length ? d3.min(vals) : (allVals.length ? d3.min(allVals) : 0);
       var max = vals.length ? d3.max(vals) : (allVals.length ? d3.max(allVals) : 1);
@@ -472,15 +574,26 @@
           pos = { x: Math.max(margin.left + 6, mapLeft), y: Math.min(height - boxH - 12, mapBottom + 12), edge: 'top' };
         }
 
+        // Slightly enlarge only ACT's callout container
+        var localW = boxW, localH = boxH;
+        if (abbr === 'ACT') {
+          localW = boxW + 24; // widen a bit to fit all content
+          localH = boxH + 12; // slightly taller for wrapped title/details
+        }
+
         var boxX = pos.x, boxY = pos.y;
+        // Maintain spacing above TAS when ACT height changes
+        if (abbr === 'ACT' && positions && positions.TAS) {
+          boxY = positions.TAS.y - (localH + gap) - (isFullscreen ? 0 : 12);
+        }
         var cg = callouts.append('g')
           .attr('class', 'callout')
           .attr('data-abbr', abbr)
           .attr('transform', 'translate(' + boxX + ',' + boxY + ')')
           .attr('data-box-x', boxX)
           .attr('data-box-y', boxY)
-          .attr('data-box-w', boxW)
-          .attr('data-box-h', boxH)
+          .attr('data-box-w', localW)
+          .attr('data-box-h', localH)
           .attr('opacity', 0.08)
           .style('cursor', 'pointer')
           .style('pointer-events', 'all')
@@ -494,8 +607,8 @@
             }
           });
         cg.append('rect')
-          .attr('width', boxW)
-          .attr('height', boxH)
+          .attr('width', localW)
+          .attr('height', localH)
           .attr('rx', cornerR)
           .attr('fill', '#e9edf2')
           .attr('stroke', '#9aa5b1');
@@ -508,21 +621,51 @@
         var lineGap = 16;
         // Header: full region name with short name, centered at top
         var fullName = nameByAbbr[abbr] || abbr || '?';
-        cg.append('text')
+        var titleText = cg.append('text')
           .attr('class', 'callout-title')
-          .attr('x', boxW / 2)
+          .attr('x', localW / 2)
           .attr('y', baseY)
           .attr('text-anchor', 'middle')
           .style('font-size', (12 * uiScale) + 'px')
           .style('font-weight', '600')
           .style('fill', '#1f2937')
           .text(fullName + ' (' + (abbr || '?') + ')');
+        // Wrap long titles inside the box width in fullscreen
+        (function wrapTitle(){
+          var maxW = localW - 16;
+          var node = titleText.node();
+          if (!node) return;
+          function computed(){ try { return node.getComputedTextLength ? node.getComputedTextLength() : node.getBBox().width; } catch(e){ return maxW; } }
+          if (computed() > maxW) {
+            var text = node.textContent || '';
+            var words = text.split(/\s+/).filter(Boolean);
+            node.textContent = '';
+            var line = [];
+            var lineNumber = 0;
+            var tspan = d3.select(node).append('tspan').attr('x', localW/2).attr('y', baseY).attr('dy', '0em');
+            words.forEach(function(w){
+              line.push(w);
+              tspan.text(line.join(' '));
+              if (computed() > maxW) {
+                line.pop();
+                tspan.text(line.join(' '));
+                line = [w];
+                lineNumber += 1;
+                tspan = d3.select(node).append('tspan').attr('x', localW/2).attr('y', baseY).attr('dy', (1.1*lineNumber)+'em').text(w);
+              }
+            });
+            // Slightly tighter spacing when title wraps
+            if (lineNumber > 0 && isFullscreen) { lineGap = 14; }
+          }
+        })();
+        var titleLines = titleText.selectAll('tspan').nodes().length || 1;
+        var detailsStartY = baseY + (titleLines > 1 ? (lineGap * titleLines) : 0);
 
         // Detail rows (excluding Jurisdiction): start from next line below header
         var calloutLabels = cg.append('g').attr('class', 'callout-labels').attr('text-anchor', 'start');
         var calloutValues = cg.append('g').attr('class', 'callout-values').attr('text-anchor', 'start');
         ['Fines per 10,000','Fines','Licences'].forEach(function(lbl, i){
-          var y = baseY + (i + 1) * lineGap;
+          var y = detailsStartY + (i + 1) * lineGap;
           calloutLabels.append('text')
             .attr('x', labelsX)
             .attr('y', y)
@@ -564,12 +707,12 @@
         var c = item.centroid;
         var linkEdge = pos.edge || 'right';
         var x2, y2;
-        if (linkEdge === 'right') { x2 = boxX + boxW; y2 = boxY + boxH / 2; }
-        else if (linkEdge === 'left') { x2 = boxX; y2 = boxY + boxH / 2; }
-        else if (linkEdge === 'top') { x2 = boxX + boxW / 2; y2 = boxY; }
-        else if (linkEdge === 'bottom') { x2 = boxX + boxW / 2; y2 = boxY + boxH; }
-        else if (linkEdge === 'topRight') { x2 = boxX + boxW - cornerR; y2 = boxY; }
-        else { x2 = boxX + boxW / 2; y2 = boxY + boxH / 2; }
+        if (linkEdge === 'right') { x2 = boxX + localW; y2 = boxY + localH / 2; }
+        else if (linkEdge === 'left') { x2 = boxX; y2 = boxY + localH / 2; }
+        else if (linkEdge === 'top') { x2 = boxX + localW / 2; y2 = boxY; }
+        else if (linkEdge === 'bottom') { x2 = boxX + localW / 2; y2 = boxY + localH; }
+        else if (linkEdge === 'topRight') { x2 = boxX + localW - cornerR; y2 = boxY; }
+        else { x2 = boxX + localW / 2; y2 = boxY + localH / 2; }
         // Route: straight by default; elbow for VIC, NT, NSW, SA or when anchor is outside bounds
         var elbowPad = 10; // go just outside the map before turning
         var forceElbow = (abbr === 'NT' || abbr === 'NSW' || abbr === 'SA');
@@ -757,6 +900,7 @@
     // Initial draw and listeners
     draw(+yearSelect.value);
     yearSelect.addEventListener('change', function () { draw(+yearSelect.value); });
+    if (methodUI) { methodUI.addEventListener('change', function(){ draw(+yearSelect.value); }); }
 
     // Responsive redraw
     function debounce(fn, ms) { var t; return function(){ clearTimeout(t); t = setTimeout(fn, ms); }; }
@@ -771,6 +915,7 @@
         .attr('width', width + margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom);
   
+      positionFullscreenBtn();
       draw(+yearSelect.value);
     }, 150);
   
