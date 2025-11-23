@@ -6,15 +6,19 @@
   var fmt = d3.format(',');
   function show(v){ tooltip.style('opacity', v ? 0.97 : 0); }
   function showSel(v){ selTip.style('opacity', v ? 0.98 : 0); }
-function placeInChart(tip, event){
-  var host = document.getElementById('chart2');
-  var hr = host ? host.getBoundingClientRect() : { left: 0, top: 0, right: (window.innerWidth||0), bottom: (window.innerHeight||0) };
+function placeInChart(tip, event, containerId){
+  var host = document.getElementById(containerId || 'chart2');
+  var vb = host ? host.getBoundingClientRect() : { left: 0, top: 0, right: (window.innerWidth||0), bottom: (window.innerHeight||0) };
+  var scrollX = window.scrollX || document.documentElement.scrollLeft || 0;
+  var scrollY = window.scrollY || document.documentElement.scrollTop || 0;
+  var cont = { left: vb.left + scrollX, top: vb.top + scrollY, right: vb.right + scrollX, bottom: vb.bottom + scrollY };
   var rect = tip.node().getBoundingClientRect();
-  var x = (event && event.pageX) ? event.pageX : hr.left;
-  var y = (event && event.pageY) ? event.pageY : hr.top;
-  var left = x + 12; if (left + rect.width > hr.right - 8) left = x - rect.width - 12; if (left < hr.left + 8) left = hr.left + 8;
-  var top = y + 12; if (top + rect.height > hr.bottom - 8) top = y - rect.height - 12; if (top < hr.top + 8) top = hr.top + 8;
-  tip.style('left', left + 'px').style('top', top + 'px');
+  var x = (event && typeof event.pageX === 'number') ? event.pageX : cont.left;
+  var y = (event && typeof event.pageY === 'number') ? event.pageY : cont.top;
+  var pad = 10;
+  var left = x + 12; if (left + rect.width > cont.right - pad) left = cont.right - pad - rect.width; if (left < cont.left + pad) left = cont.left + pad;
+  var top = y + 12; if (top + rect.height > cont.bottom - pad) top = cont.bottom - pad - rect.height; if (top < cont.top + pad) top = cont.top + pad;
+  tip.attr('data-last-x', x).attr('data-last-y', y).style('left', left + 'px').style('top', top + 'px');
 }
   function htmlFor(year){
     var c = ctx.color;
@@ -55,12 +59,16 @@ function placeInChart(tip, event){
       .style('font-family','Segoe UI, Arial, sans-serif')
       .style('font-size','13px')
       .style('pointer-events','none')
+      .style('transition','left 160ms ease, top 160ms ease')
       .style('opacity',0);
     var style = document.createElement('style');
     style.textContent = '#chart2-tooltip .tt-head{font-weight:700;margin-bottom:6px}#chart2-tooltip .tt-row{display:flex;align-items:center;gap:8px;line-height:1.4}#chart2-tooltip .tt-row.hi{font-weight:700}#chart2-tooltip .sw{width:18px;height:4px;border-radius:2px;display:inline-block}#chart2-tooltip .lab{min-width:34px}#chart2-tooltip .val{margin-left:auto;font-variant-numeric:tabular-nums}.hover-year-line{transition:opacity 160ms ease;will-change:opacity}#chart2-select-tooltip{position:absolute;background:#eef1f5;color:#111;padding:8px 10px;border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,0.12);font-family:Segoe UI, Arial, sans-serif;font-size:13px;pointer-events:none;opacity:0}#chart2-select-tooltip .hd{font-weight:700;margin-bottom:8px;font-size:14px}#chart2-select-tooltip .row{display:flex;gap:8px}#chart2-select-tooltip .lab{min-width:110px;opacity:0.9}#chart2-select-tooltip .val{margin-left:auto;font-variant-numeric:tabular-nums}#chart2-donut-tooltip{position:absolute;background:rgba(0,0,0,0.85);color:#fff;padding:8px 10px;border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,0.4);font-family:Segoe UI, Arial, sans-serif;font-size:12px;pointer-events:none;opacity:0}.viz2-enter{opacity:0;transform:translateY(12px);transition:opacity 380ms ease,transform 380ms ease}.viz2-enter.in{opacity:1;transform:none}#chart2 .loading{color:#999;font-size:13px;padding:8px 0}';
     document.head.appendChild(style);
-    selTip.style('position','absolute');
-    donutTip.style('position','absolute');
+    var style2 = document.createElement('style');
+    style2.textContent = '.tt-donut{display:flex;align-items:center;gap:8px;max-width:280px}.tt-donut .title{display:inline-block;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tt-donut .val{font-variant-numeric:tabular-nums}#chart2-donut-tooltip{transition:left 160ms ease, top 160ms ease}#chart2-tooltip{transition:left 160ms ease, top 160ms ease}#chart2-select-tooltip{transition:left 160ms ease, top 160ms ease}@media (max-width:768px){.tt-donut{max-width:220px}.tt-donut .title{max-width:140px}}@media (max-width:480px){.tt-donut{max-width:180px}.tt-donut .title{max-width:120px}}#chart2-donut-tooltip:hover .title{white-space:normal;max-width:none} .donut-title{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;line-height:1.2} @media (max-width:768px){.donut-title{font-size:16px}} @media (max-width:480px){.donut-title{font-size:14px}}';
+    document.head.appendChild(style2);
+    selTip.style('position','absolute').style('transition','left 160ms ease, top 160ms ease');
+    donutTip.style('position','absolute').style('transition','left 160ms ease, top 160ms ease');
   }
   function setup(){
     if (!window.chart2Ctx || !window.chart2Ctx.ready) return;
@@ -89,15 +97,15 @@ function placeInChart(tip, event){
       vline.raise();
       overlay.on('mouseenter', function(event){ show(true); vline.attr('opacity',1); })
              .on('mousemove', function(event){
-               if (ctx.selectedSeriesKey) { show(false); return; }
+               if (ctx.selectedSeriesKey) { placeInChart(selTip, event, 'chart2'); return; }
                var p = d3.pointer(event, ctx.svg.node());
                var year = nearestYear(p[0]);
                var xv = Math.max(0, Math.min(ctx.width, ctx.x(year)));
                vline.attr('x1', xv).attr('x2', xv);
                if (year !== lastYear){ tooltip.html(htmlFor(year)); lastYear = year; }
-               placeInChart(tooltip, event);
+               placeInChart(tooltip, event, 'chart2');
              })
-             .on('mouseleave', function(){ show(false); lastYear = null; vline.attr('opacity',0); })
+             .on('mouseleave', function(){ show(false); showSel(false); lastYear = null; vline.attr('opacity',0); })
              .on('click', function(){ if (ctx.animating) return; resetSelection(); });
       var xTicks = ctx.svg.select('.axis--x').selectAll('text');
       xTicks.on('mouseenter', function(event, d){
@@ -263,13 +271,18 @@ function placeInChart(tip, event){
         .style('font-family','"Segoe UI",sans-serif')
         .style('overflow','hidden')
         .style('display','block');
-      var topPad = 50, bottomPad = 140, rightColW = 160;
-      var centerY = topPad + (h - topPad - bottomPad) / 2;
-      var centerX = w / 2;
-      var r = Math.min(w - rightColW, (h - topPad - bottomPad)) * 0.42;
+      var vw = window.innerWidth || document.documentElement.clientWidth;
+var isTablet = vw <= 1024, isMobile = vw <= 768, isTiny = vw <= 480;
+var isDesktop = vw >= 1025;
+var topPad = isTiny ? 36 : (isMobile ? 42 : 50);
+var bottomPad = isTiny ? 100 : (isMobile ? 110 : 140);
+var rightColW = (isMobile || isTiny) ? 0 : 160;
+var centerY = topPad + (h - topPad - bottomPad) / 2;
+var centerX = w / 2;
+var r = Math.min(w - rightColW, (h - topPad - bottomPad)) * (isTiny ? 0.42 : (isMobile ? 0.44 : 0.44));
       var g = svg.append('g').attr('transform','translate('+centerX+','+centerY+')');
       var pie = d3.pie().value(function(d){ return d.value; }).sort(null);
-      var arc = d3.arc().innerRadius(r*0.58).outerRadius(r);
+      var arc = d3.arc().innerRadius(r * (isTiny ? 0.55 : 0.58)).outerRadius(r);
       var colors = { Police: '#0072B2', Camera: '#D55E00' };
       var mode = 'value';
       function labelText(d){
@@ -284,7 +297,7 @@ function placeInChart(tip, event){
         .attr('class','segment')
         .attr('fill', function(d){ return colors[d.data.label]; })
         .attr('stroke', '#ffffff')
-        .attr('stroke-width', 1.2)
+        .attr('stroke-width', isTiny ? 0.9 : (isMobile ? 1.1 : 1.2))
         .attr('opacity', function(d){ return d.data.value>0 ? 1 : 0.15; })
         .attr('tabindex', 0)
         .attr('role','img')
@@ -292,17 +305,34 @@ function placeInChart(tip, event){
         .each(function(d){ this._current = { startAngle: 0, endAngle: 0 }; })
         .transition().duration(1000).ease(d3.easeCubicOut)
         .attrTween('d', function(d){ var i = d3.interpolate(this._current, d); this._current = i(1); return function(t){ return arc(i(t)); }; });
+      var inner = r * (isTiny ? 0.55 : 0.58);
+      var midR = (inner + r) / 2;
+      var minAngle = 0.18;
+      g.selectAll('text.inner-label').data(pie(data)).enter().append('text')
+        .attr('class','inner-label')
+        .attr('text-anchor','middle')
+        .style('font-size', isTiny ? '11px' : (isMobile ? '12px' : '13px'))
+        .style('font-weight','700')
+        .style('pointer-events','none')
+        .style('fill', function(d){ var col = d3.color(colors[d.data.label]); var y = col ? (0.299*col.r + 0.587*col.g + 0.114*col.b) : 255; return y > 160 ? '#111' : '#fff'; })
+        .attr('opacity', function(d){ var ang = d.endAngle - d.startAngle; return isDesktop ? 0 : ((d.data.value>0 && ang >= minAngle) ? 0.98 : 0); })
+        .attr('transform', function(d){ var a=(d.startAngle+d.endAngle)/2; var x=Math.cos(a)*midR; var y=Math.sin(a)*midR; return 'translate('+x+','+y+')'; })
+        .text(function(d){ return fmt(d.data.value); });
+      function donutTipContent(d){ var label=d.data.label, val=fmt(d.data.value); return '<div class="tt-donut"><span class="title" title="'+label+'">'+label+'</span><span class="sep">:</span><span class="val">'+val+'</span></div>'; }
+      function placeDonutTip(d){
+        var container = document.getElementById('info-pie'); if (!container) return;
+        var vb = container.getBoundingClientRect(); var scrollX = window.scrollX || document.documentElement.scrollLeft || 0; var scrollY = window.scrollY || document.documentElement.scrollTop || 0;
+        var mid = (d.startAngle + d.endAngle)/2; var side = Math.cos(mid) > 0 ? 1 : -1; var c = arc.centroid(d);
+        var pageX = vb.left + scrollX + centerX + c[0] + side * 16; var pageY = vb.top + scrollY + centerY + c[1];
+        placeInChart(donutTip, { pageX: pageX, pageY: pageY }, 'info-pie');
+      }
       g.selectAll('path.segment')
-        .on('mouseenter', function(event, d){
-          donutTip.html(d.data.label + ': ' + fmt(d.data.value))
-            .style('opacity', 0.95);
-          placeInChart(donutTip, event);
-        })
-        .on('mousemove', function(event){
-          placeInChart(donutTip, event);
-        })
+        .on('mouseenter', function(event, d){ donutTip.html(donutTipContent(d)).style('opacity', 0.95); placeDonutTip(d); })
+        .on('mousemove', function(event, d){ placeDonutTip(d); })
         .on('mouseleave', function(){ donutTip.style('opacity', 0); })
-        .on('keydown', function(event, d){ if (event.code==='Enter'||event.code==='Space'){ donutTip.html(d.data.label + ': ' + fmt(d.data.value)).style('opacity',0.95).style('left',(event.pageX||0)+10+'px').style('top',(event.pageY||0)+10+'px'); } });
+        .on('touchstart', function(event, d){ donutTip.html(donutTipContent(d)).style('opacity', 0.95); placeDonutTip(d); })
+        .on('touchmove', function(event, d){ placeDonutTip(d); })
+        .on('keydown', function(event, d){ if (event.code==='Enter'||event.code==='Space'){ donutTip.html(donutTipContent(d)).style('opacity',0.95); placeDonutTip(d); } });
 
       var slices = pie(data).filter(function(d){ return d.data.value>0; });
       var half = (h - topPad - bottomPad) / 2;
@@ -324,35 +354,40 @@ function placeInChart(tip, event){
         });
       }
       var pos = slices.map(function(d){ var mid=(d.startAngle+d.endAngle)/2; var side = (Math.cos(mid)>0) ? 1 : -1; return { d:d, mid:mid, side:side }; });
-      layout(pos.filter(function(p){ return p.side<0; }));
-      layout(pos.filter(function(p){ return p.side>0; }));
-      var leaders = g.selectAll('path.label-leader').data(slices).enter().append('path')
-        .attr('class','label-leader')
-        .attr('fill','none')
-        .attr('stroke','#ffffff')
-        .attr('stroke-width',1)
-        .attr('opacity',0.85)
-        .attr('d', function(d){
-          var c = arc.centroid(d);
-          var lay = d._layout || { y: Math.sin((d.startAngle+d.endAngle)/2)*(r+18), x2: Math.cos((d.startAngle+d.endAngle)/2)*(r+12), x3: Math.cos((d.startAngle+d.endAngle)/2)*(r+12) + (Math.cos((d.startAngle+d.endAngle)/2)>0?22:-22) };
-          return 'M ' + c[0] + ' ' + c[1] + ' L ' + lay.x2 + ' ' + lay.y + ' L ' + lay.x3 + ' ' + lay.y;
-        });
-      var labels = g.selectAll('text.arc-label').data(slices).enter().append('text')
-        .attr('class','arc-label')
-        .style('font-size','14px')
-        .style('font-weight','700')
-        .style('fill','#fff')
-        .attr('opacity',0.95)
-        .attr('text-anchor', function(d){ var lay = d._layout; return (lay && lay.side>0) ? 'start' : 'end'; })
-        .attr('transform', function(d){
-          var lay = d._layout || {};
-          return 'translate(' + (lay.x3||0) + ',' + (lay.y||0) + ')';
-        })
-        .text(function(d){ return labelText(d); });
+      if (!isMobile && !isTiny) {
+        layout(pos.filter(function(p){ return p.side<0; }));
+        layout(pos.filter(function(p){ return p.side>0; }));
+      }
+      var labels = g.selectAll('text.arc-label');
+      if (!isMobile && !isTiny) {
+        var leaders = g.selectAll('path.label-leader').data(slices).enter().append('path')
+          .attr('class','label-leader')
+          .attr('fill','none')
+          .attr('stroke','#ffffff')
+          .attr('stroke-width',1)
+          .attr('opacity',0.85)
+          .attr('d', function(d){
+            var c = arc.centroid(d);
+            var lay = d._layout || { y: Math.sin((d.startAngle+d.endAngle)/2)*(r+18), x2: Math.cos((d.startAngle+d.endAngle)/2)*(r+12), x3: Math.cos((d.startAngle+d.endAngle)/2)*(r+12) + (Math.cos((d.startAngle+d.endAngle)/2)>0?22:-22) };
+            return 'M ' + c[0] + ' ' + c[1] + ' L ' + lay.x2 + ' ' + lay.y + ' L ' + lay.x3 + ' ' + lay.y;
+          });
+        labels = g.selectAll('text.arc-label').data(slices).enter().append('text')
+          .attr('class','arc-label')
+          .style('font-size', isTiny ? '12px' : (isMobile ? '13px' : '14px'))
+          .style('font-weight','700')
+          .style('fill','#fff')
+          .attr('opacity',0.95)
+          .attr('text-anchor', function(d){ var lay = d._layout; return (lay && lay.side>0) ? 'start' : 'end'; })
+          .attr('transform', function(d){
+            var lay = d._layout || {};
+            return 'translate(' + (lay.x3||0) + ',' + (lay.y||0) + ')';
+          })
+          .text(function(d){ return labelText(d); });
+      }
 
-      var btnW = 108, btnH = 34, radius = 17, spacing = 10;
-      var toggleX = centerX - ((btnW*2 + spacing) / 2);
-      var toggleY = centerY + r + 40;
+      var btnW = isTiny ? 90 : (isMobile ? 100 : 108), btnH = isTiny ? 30 : 34, radius = 17, spacing = 10;
+var toggleX = centerX - ((btnW*2 + spacing) / 2);
+var toggleY = centerY + r + (isTiny ? 28 : 40);
       var toggle = svg.append('g')
         .attr('transform','translate('+toggleX+','+toggleY+')')
         .attr('class','mode-toggle')
@@ -389,7 +424,7 @@ function placeInChart(tip, event){
           .attr('x', btnW/2)
           .attr('y', 20)
           .attr('text-anchor','middle')
-          .style('font-size','14px')
+          .style('font-size', isTiny ? '12px' : (isMobile ? '13px' : '14px'))
           .style('font-weight','700')
           .style('fill','#fff')
           .text(o.label);
@@ -409,7 +444,8 @@ function placeInChart(tip, event){
         .attr('width', titleW)
         .attr('height', 46);
       titleFO.append('xhtml:div')
-        .style('font-size','18px')
+        .attr('class','donut-title')
+        .attr('title','Annual Fines by '+ fullName(key)+' in '+year)
         .style('font-weight','700')
         .style('color','#fff')
         .style('text-align','center')
@@ -493,5 +529,11 @@ function placeInChart(tip, event){
       } else { onEnter(); }
     }
     setupObserver();
+
+    function debounce(fn, ms){ var t; return function(){ clearTimeout(t); t = setTimeout(fn, ms); }; }
+    function reclamp(tip){ if (!tip) return; var node = tip.node(); if (!node) return; var op = parseFloat(tip.style('opacity')) || 0; if (op < 0.05) return; var lx = +node.getAttribute('data-last-x'); var ly = +node.getAttribute('data-last-y'); if (isFinite(lx) && isFinite(ly)) { var containerId = (node.id==='chart2-donut-tooltip') ? 'info-pie' : 'chart2'; placeInChart(tip, { pageX: lx, pageY: ly }, containerId); } }
+    var reclampAll = debounce(function(){ reclamp(tooltip); reclamp(selTip); reclamp(donutTip); }, 80);
+    window.addEventListener('scroll', reclampAll, { passive: true });
+    window.addEventListener('resize', reclampAll);
   });
 })();

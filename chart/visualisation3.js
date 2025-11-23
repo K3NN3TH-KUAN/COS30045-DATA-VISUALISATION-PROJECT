@@ -494,17 +494,43 @@
         .style('fill', '#444')
         .text('Rate per 10k');
 
-      // Map title (left-aligned)
       svg.selectAll('.chart3-title').remove();
-      svg.append('text')
+      var vwTitle = window.innerWidth || document.documentElement.clientWidth;
+      var fsTitle = vwTitle <= 480 ? 12 : (vwTitle <= 768 ? 14 : (vwTitle <= 1024 ? 16 : 18));
+      var titleTextNode = svg.append('text')
         .attr('class', 'chart3-title')
         .attr('x', margin.left)
         .attr('y', Math.max(22, margin.top + 18))
         .attr('text-anchor', 'start')
         .style('font-weight', '700')
-        .style('font-size', '18px')
+        .style('font-size', fsTitle + 'px')
         .style('fill', '#222')
         .text('Fines per 10,000 Licences by Jurisdiction in ' + year);
+      (function wrapChartTitle(){
+        var maxW = Math.max(160, width - margin.left - margin.right - 16);
+        var node = titleTextNode.node();
+        if (!node) return;
+        function computed(){ try { return node.getComputedTextLength ? node.getComputedTextLength() : node.getBBox().width; } catch(e){ return maxW; } }
+        if (computed() > maxW){
+          var text = node.textContent || '';
+          var words = text.split(/\s+/).filter(Boolean);
+          node.textContent = '';
+          var line = [];
+          var lineNumber = 0;
+          var tspan = d3.select(node).append('tspan').attr('x', margin.left).attr('y', Math.max(22, margin.top + 18)).attr('dy', '0em');
+          words.forEach(function(w){
+            line.push(w);
+            tspan.text(line.join(' '));
+            if (computed() > maxW){
+              line.pop();
+              tspan.text(line.join(' '));
+              line = [w];
+              lineNumber += 1;
+              tspan = d3.select(node).append('tspan').attr('x', margin.left).attr('y', Math.max(22, margin.top + 18)).attr('dy', (1.1*lineNumber)+'em').text(w);
+            }
+          });
+        }
+      })();
 
       // Always-on callouts: one container per region, arranged in two columns
       var callouts = g.append('g').attr('class', 'callouts');
@@ -596,6 +622,7 @@
           .attr('data-box-h', localH)
           .attr('opacity', 0.08)
           .style('cursor', 'pointer')
+          .style('z-index', 100)
           .style('pointer-events', 'all')
           .on('click', function(event){
             event.stopPropagation();
@@ -605,12 +632,13 @@
             } else {
               updateFocus(a);
             }
-          });
+          }).raise();
         cg.append('rect')
           .attr('width', localW)
           .attr('height', localH)
           .attr('rx', cornerR)
           .attr('fill', '#e9edf2')
+          .style('z-index', 100)
           .attr('stroke', '#9aa5b1');
 
         // Align all text left; place values a fixed gap from labels
@@ -812,6 +840,8 @@
         .attr('text-anchor', 'middle')
         .style('font-size', '10px')
         .style('fill', '#666')
+        .style('pointer-events', 'none')
+        .style('z-index', 1)
         .text('Hover over states');
     
       // Draw states - this will now fill the entire container
@@ -882,7 +912,9 @@
                  (v != null && isFinite(v) ? d3.format('.2f')(v) + ' per 10,000' : 'N/A');
         });
       // Ensure callout boxes, leader lines, and nodes render above the map
-      g.selectAll('.callout, .callout-link, .callout-link-node').raise();
+      var overlay = g.append('g').attr('class','overlay');
+      overlay.append(function(){ return callouts.node(); });
+      overlay.append(function(){ return hoverText.node(); });
       // Click on empty space clears focus
       svg.on('click', function(event){
         var t = event.target;

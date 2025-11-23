@@ -97,9 +97,8 @@
         <!-- Visualisation 1 Section -->
         <section class="viz-section snap-section" id="blank1-section">         
             <div class="viz-grid">
-                <!-- Controls and info area (30% on LEFT for section 3) -->
-                <div class="viz-controls-info" aria-label="Controls and insights">
-                    <!-- Filter controls at top -->
+                <!-- Responsive: Filters container above chart at <=1024px -->
+                <div class="filters-container" aria-label="Filters">
                     <section class="control-card" aria-labelledby="filters1-title">
                         <form class="filter-form" aria-describedby="filters1-title">
                             <label class="field-label" id="period1-label">Period</label>
@@ -114,8 +113,10 @@
                             <select id="det-method" aria-label="Detection Method"></select>
                         </form>
                     </section>
-                    
-                    <!-- Info panel with consistent styling -->
+                </div>
+
+                <!-- Controls and info area -->
+                <div class="viz-controls-info" aria-label="Controls and insights">
                     <aside class="info-panel" role="complementary" aria-labelledby="info1-title">
                         <h2 id="info1-title" class="info-title">Key Findings</h2>
                         <ul class="info-points" role="list">
@@ -153,7 +154,6 @@
 
         <!-- Visualisation 2 Section -->
         <section class="viz-section snap-section" id="blank2-section">
-     
             <div class="viz-grid">
                 <!-- Chart area (70% on LEFT for section 4) -->
                 <div class="viz-chart">
@@ -161,10 +161,8 @@
                         <div id="chart2" class="chart-host"></div>
                     </div>
                 </div>
-        
-                <!-- Controls and info area (30% on RIGHT for section 4) -->
-                <div class="viz-controls-info" aria-label="Controls and insights">
-                    <!-- Filter card: white, rounded, shadow -->
+                
+                <div class="filters-container" aria-label="Filters">
                     <section class="control-card" aria-labelledby="filters-title">
                         <form class="filter-form" aria-describedby="filters-title">
                             <!-- Grid 2 columns: label (left) and select (right) -->
@@ -186,7 +184,10 @@
                             <select id="det2-method" aria-label="Detection Method"></select>
                         </form>
                     </section>
-        
+                </div>
+
+                <!-- Controls and info area (30% on RIGHT for section 4) -->
+                <div class="viz-controls-info" aria-label="Controls and insights">
                     <!-- Info panel: dark gradient card with bullets and actions -->
                     <aside class="info-panel" role="complementary" aria-labelledby="info-title">
                         <h2 id="info-title" class="info-title">Key Findings</h2>
@@ -219,17 +220,8 @@
 
         <!-- Visualisation 3 Section -->
         <section class="viz-section snap-section" id="blank3-section">
-            <div class="viz-grid">
-                <!-- Chart area (70% on RIGHT for section 5) -->
-                <div class="viz-chart">
-                    <div class="chart-card" role="figure" aria-label="Annual fines per 10,000 drivers map">
-                        <div id="chart3" class="chart-host"></div>
-                    </div>
-                </div>
-                
-                <!-- Controls and info area (30% on LEFT for section 5) -->
-                <div class="viz-controls-info" aria-label="Controls and insights">
-                    <!-- Filter controls at top -->
+            <div class="viz-grid">       
+                 <div class="filters-container" aria-label="Filters">
                     <section class="control-card" aria-labelledby="filters3-title">
                         <form class="filter-form" aria-describedby="filters3-title">
                             <label class="field-label" id="year3-label">Year</label>
@@ -250,7 +242,9 @@
                             </div>
                         </form>
                     </section>
-                    
+                 </div>         
+                <!-- Controls and info area (30% on LEFT for section 5) -->
+                <div class="viz-controls-info" aria-label="Controls and insights">
                     <!-- Info panel with two views: description and horizontal bar chart -->
                     <aside class="info-panel" role="complementary" aria-labelledby="info3-title">
                         <!-- Toggle at top center: Description | Bar Chart -->
@@ -287,6 +281,13 @@
                             </button>
                         </div>
                     </aside>
+                </div>
+
+                <!-- Chart area (70% on RIGHT for section 5) -->
+                <div class="viz-chart">
+                    <div class="chart-card" role="figure" aria-label="Annual fines per 10,000 drivers map">
+                        <div id="chart3" class="chart-host"></div>
+                    </div>
                 </div>
             </div>
             

@@ -7,10 +7,12 @@
     }; 
     var chartEl = document.getElementById('chart2');
     var totalWidth = (chartEl && chartEl.clientWidth) ? chartEl.clientWidth : 960;
+    var vwInit = window.innerWidth || document.documentElement.clientWidth;
+    margin.right = (vwInit >= 1025) ? 0 : 100;
 
     // make a width-only estimate first; bottom margin doesn't affect width
     var width = totalWidth;
-    var isMobile = window.innerWidth <= 768;
+    var isMobile = vwInit <= 768;
 
     // Estimate legend layout to decide how much bottom space we need
     var seriesKeys = ['ACT', 'NSW', 'NT', 'QLD', 'SA', 'TAS', 'VIC', 'WA'];
@@ -23,15 +25,21 @@
     var totalHeight = (chartEl && chartEl.clientHeight) ? chartEl.clientHeight : 520;
     var height = totalHeight - margin.top - margin.bottom;
 
-    var svg = d3.select('#chart2')
+    var root = d3.select('#chart2')
         .append('svg')
-        .attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom)
+        .attr('viewBox', '0 0 ' + (width + margin.left + margin.right) + ' ' + (height + margin.top + margin.bottom))
+        .attr('preserveAspectRatio', 'xMinYMin meet')
+        .style('display','block')
+        .style('width','100%')
+        .style('height','auto')
         .attr('role','img')
         .attr('aria-label','Annual fines by jurisdiction line chart')
-        .style('font-family', 'Segoe UI, Arial, sans-serif')
-        .append('g')
-        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+        .style('font-family', 'Segoe UI, Arial, sans-serif');
+    root.append('desc').text('Multi-series line chart of annual fines by jurisdiction over years with a log-scaled Y axis.');
+    var svg = root.append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+    var live = document.getElementById('chart2-live');
+    if (!live) { live = document.createElement('div'); live.id='chart2-live'; live.setAttribute('role','status'); live.setAttribute('aria-live','polite'); live.className='visually-hidden'; document.getElementById('chart2').appendChild(live); }
+    function announce(msg){ if (live) { live.textContent = msg; } }
 
     var redraw = function(){};
 
@@ -177,16 +185,24 @@
             var f = filteredData();
             var keys = selectedKeys();
             svg.selectAll('*').remove();
+            window.chart2Ctx.renderId = (window.chart2Ctx.renderId || 0) + 1;
+            var renderId = window.chart2Ctx.renderId;
 
-            var isMobile = window.innerWidth <= 768;
+            var vw = window.innerWidth || document.documentElement.clientWidth;
+            var isTablet = vw <= 1024;
+            var isMobile = vw <= 768;
+            var isTiny = vw <= 480;
+            var uiScale = isTiny ? 0.78 : (isMobile ? 0.86 : (isTablet ? 0.93 : 1));
             var x = d3.scaleLinear()
                 .domain(d3.extent(f, function(d){ return d.YEAR; }))
                 .range([0, width]);
 
             var yearVals = f.map(function(d){ return d.YEAR; }).filter(function(v,i,a){ return a.indexOf(v)===i; }).sort(d3.ascending);
-            var isCamera = methodSel && /camera/i.test(methodSel.value);
-            var tickYears = isCamera ? yearVals : yearVals.filter(function(y){ return y % 2 === 0; });
-            if (!isCamera && (tickYears.length === 0 || tickYears[tickYears.length - 1] !== yearVals[yearVals.length - 1])) { tickYears.push(yearVals[yearVals.length - 1]); }
+            var startY = +startSel.value, endY = +endSel.value;
+            var oddRangeSelected = (startY % 2 === 1) && (endY % 2 === 1);
+            var tickYears = (isMobile || isTiny) ? yearVals.filter(function(y){ return oddRangeSelected ? (y % 2 === 1) : (y % 2 === 0); }) : yearVals.slice();
+            if (isMobile || isTiny) { var maxTicks = isTiny ? 5 : 6; var step = Math.max(1, Math.ceil(tickYears.length / maxTicks)); tickYears = tickYears.filter(function(y,i){ return i % step === 0; }); }
+            if (tickYears.length === 0 || tickYears[tickYears.length - 1] !== yearVals[yearVals.length - 1]) { tickYears.push(yearVals[yearVals.length - 1]); }
 
             // Add x-axis
             var xAxis = d3.axisBottom(x)
@@ -197,14 +213,19 @@
             var xAxisG = svg.append('g')
                 .attr('transform','translate(0,'+height+')')
                 .attr('class','axis axis--x')
+                .attr('role','img')
+                .attr('aria-label','X axis: Year')
                 .call(xAxis);
 
+            var isDesktop = vw >= 1025;
+            var fsAxis = isDesktop ? 15 : Math.max(10, Math.round(13 * uiScale));
             xAxisG.selectAll('text')
                 .attr('transform','rotate(0)')
                 .style('text-anchor','middle')
                 .attr('dx','0')
                 .attr('dy','0.85em')
-                .attr('font-size', isMobile ? 11 : 13);
+                .attr('font-size', fsAxis)
+                .style('fill','#0f172a');
 
             var yMax = d3.max(keys, function(k){ return d3.max(f, function(d){ return safe(d[k], 0); }); });
             var yMinPos = Infinity;
@@ -235,9 +256,11 @@
 
             var yAxisG = svg.append('g')
                 .attr('transform','translate(0,0)')
-                .attr('class','axis axis--y');
+                .attr('class','axis axis--y')
+                .attr('role','img')
+                .attr('aria-label','Y axis: Annual fines (log)');
             yAxisG.transition().duration(600).call(yAxis);
-            yAxisG.selectAll('text').style('font-size', isMobile ? '11px' : '13px');
+            yAxisG.selectAll('text').style('font-size', fsAxis + 'px').style('fill','#0f172a');
 
             window.chart2Ctx.x = x;
             window.chart2Ctx.y = y;
@@ -306,7 +329,7 @@
                  .duration(1500)
                  .ease(d3.easeLinear)
                  .attr('stroke-dashoffset', 0)
-                 .on('end', function(){
+                 .on('end', function(){ if (renderId !== window.chart2Ctx.renderId) { return; }
                     var last = null;
                     for (var j = f.length - 1; j >= 0; j--) {
                         var vj = safe(f[j][key], null);
@@ -331,7 +354,7 @@
                             .attr('y', 0)
                             .attr('text-anchor','start')
                             .attr('dominant-baseline','middle')
-                            .style('font-size', isMobile ? '12px' : '13px')
+                            .style('font-size', (isMobile ? '12px' : (isTablet ? '13px' : '16px')))
                             .style('fill', color(key))
                             .text(key);
                         var bb = label.node().getBBox();
@@ -360,44 +383,55 @@
             });
 
             // Title
+            var fsTitle = isDesktop ? 24 : Math.round(20 * uiScale);
             svg.append('text')
                 .attr('x', -90)
                 .attr('y', -50)
                 .attr('text-anchor', 'start')
                 .attr('dominant-baseline','hanging')
-                .style('font-size', '20px')
+                .style('font-size', fsTitle + 'px')
                 .style('font-weight', '700')
+                .style('fill','#0f172a')
                 .text('Annual Fines by Jurisdiction');
 
             // X-axis label
+            var fsLabel = isDesktop ? 20 : Math.round(18 * uiScale);
             svg.append('text')
                 .attr('x', width / 2)
                 .attr('y', height + 50)
                 .attr('text-anchor', 'middle')
-                .style('font-size', '18px')
+                .style('font-size', fsLabel + 'px')
+                .style('fill','#0f172a')
                 .text('Year');
 
             // Horizontal legend below X-axis label
-            var itemW = isMobile ? 80 : 90;
-            var totalLegendW = keys.length * itemW;
-            var startX = (width - totalLegendW) / 2;
-            var legend = svg.append('g').attr('transform', 'translate(0,' + (height + 90) + ')');
+            var itemW = Math.round((isTiny ? 120 : (isMobile ? 112 : 128)) * uiScale);
+            var perRow = isTiny ? 3 : (isMobile ? 4 : (isTablet ? 6 : 8));
+            perRow = Math.max(3, Math.min(perRow, keys.length));
+            var rowH = isTiny ? 28 : 26;
+            var legend = svg.append('g')
+              .attr('class','legend')
+              .attr('role','group')
+              .attr('aria-label','Legend')
+              .attr('transform', 'translate(0,' + (height + 80) + ')');
             keys.forEach(function(k, i){
-                var lx = startX + i * itemW;
-                legend.append('rect')
-                    .attr('x', lx)
-                    .attr('y', -8)
-                    .attr('width', 20)
-                    .attr('height', 14)
-                    .attr('rx', 3)
-                    .attr('ry', 3)
-                    .attr('fill', color(k));
-                legend.append('text')
-                    .attr('x', lx + 24)
-                    .attr('y', 0)
-                    .attr('dominant-baseline', 'middle')
-                    .style('font-size', isMobile ? '16px' : '18px')
-                    .text(k);
+              var row = Math.floor(i / perRow), col = i % perRow;
+              var totalRowW = perRow * itemW;
+              var baseX = isTiny ? 8 : Math.max(0, (width - totalRowW) / 2);
+              var gapX = isTiny ? 12 : 0;
+              var colSlot = isTiny ? (itemW / 2 + gapX) : itemW;
+              var lx = baseX + col * colSlot;
+              var ly = row * rowH;
+              var gi = legend.append('g')
+                .attr('transform','translate('+lx+','+ly+')')
+                .attr('role','button')
+                .attr('tabindex',0)
+                .attr('aria-label','Toggle '+k+' series')
+                .style('cursor','pointer')
+                .on('pointerdown', function(ev){ if (window.chart2Ctx && window.chart2Ctx.animating) return; var y = (window.chart2Ctx && window.chart2Ctx.yearVals) ? window.chart2Ctx.yearVals[window.chart2Ctx.yearVals.length-1] : null; if (window.chart2Ctx && window.chart2Ctx.applySelection) window.chart2Ctx.applySelection(k, y, ev); })
+                .on('keydown', function(ev){ if (window.chart2Ctx && window.chart2Ctx.animating) return; if (ev.code==='Enter' || ev.code==='Space'){ var y = (window.chart2Ctx && window.chart2Ctx.yearVals) ? window.chart2Ctx.yearVals[window.chart2Ctx.yearVals.length-1] : null; if (window.chart2Ctx && window.chart2Ctx.applySelection) window.chart2Ctx.applySelection(k, y, ev); }});
+              gi.append('rect').attr('x',0).attr('y',-8).attr('width',20).attr('height',14).attr('rx',3).attr('ry',3).attr('fill', color(k));
+              gi.append('text').attr('x',24).attr('y',0).attr('dominant-baseline','middle').style('font-size', (isTiny?14:(isMobile?16:18))+'px').style('fill','#0f172a').text(k);
             });
 
             // Y-axis label
@@ -406,9 +440,11 @@
                 .attr('x', -height / 2)
                 .attr('y', -70)
                 .attr('text-anchor', 'middle')
-                .style('font-size', '18px')
+                .style('font-size', fsLabel + 'px')
+                .style('fill','#0f172a')
                 .text(yLabel);
 
+            announce('Chart updated: years '+startSel.value+' to '+endSel.value+', '+selectedJurisdictions.length+' jurisdictions, method '+(methodSel.value||'All')+'.');
             if (window.chart2Ctx && window.chart2Ctx.onRedraw) window.chart2Ctx.onRedraw();
         };
 
@@ -430,18 +466,29 @@
     // Add responsive redraw for Chart 2
     // Responsive: recalc width from container and redraw (inside this scope)
     function debounce(fn, ms) { var t; return function(){ clearTimeout(t); t = setTimeout(fn, ms); }; }
+    var lastOuterW = 0, lastOuterH = 0;
     function setDimensions2() {
       var chartEl = document.getElementById('chart2');
-      var totalWidth = (chartEl && chartEl.clientWidth) ? chartEl.clientWidth : 960;
-      var totalHeight = (chartEl && chartEl.clientHeight) ? chartEl.clientHeight : 520;
-    
-      width = totalWidth - margin.left - margin.right;
-      height = totalHeight - margin.top - margin.bottom;
-    
-      d3.select('#chart2 svg')
-        .attr('width', totalWidth)
-        .attr('height', totalHeight);
-    
+      var outerW = (chartEl && chartEl.clientWidth) ? chartEl.clientWidth : 960;
+      var vw = window.innerWidth || document.documentElement.clientWidth;
+      var isTiny = vw <= 480, isMobile = vw <= 768;
+      margin.right = (vw >= 1025) ? 0 : 100;
+      var baseH = isTiny ? Math.round(outerW * 0.55) : (isMobile ? Math.round(outerW * 0.60) : Math.round(outerW * 0.50));
+      var outerH = Math.max(360, baseH) + margin.top + margin.bottom;
+
+      if (outerW === lastOuterW && outerH === lastOuterH) return;
+      lastOuterW = outerW; lastOuterH = outerH;
+
+      width = outerW - margin.left - margin.right;
+      height = outerH - margin.top - margin.bottom;
+
+      var rootSel = d3.select('#chart2 svg');
+      rootSel
+        .attr('viewBox', '0 0 ' + outerW + ' ' + outerH)
+        .style('width','100%')
+        .style('height','100%')
+        .attr('preserveAspectRatio','xMinYMin meet');
+
       svg.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
     }
 
@@ -449,8 +496,6 @@
     setDimensions2();
     if (window.chart2Ctx.shouldRender()) { redraw(); } else { window.chart2Ctx.needsInitialDraw = true; }
 
-    window.addEventListener('resize', debounce(function(){
-      setDimensions2();
-      redraw();
-    }, 150));
+    window.addEventListener('resize', debounce(function(){ setDimensions2(); redraw(); }, 150));
+    if ('ResizeObserver' in window){ var ro = new ResizeObserver(function(){ setDimensions2(); redraw(); }); ro.observe(document.getElementById('chart2')); }
 })();

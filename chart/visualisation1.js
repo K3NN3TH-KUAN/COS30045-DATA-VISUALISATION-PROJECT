@@ -29,6 +29,8 @@
   svgRoot.on('click', function(event){
     var t = event.target && event.target.tagName ? event.target.tagName.toLowerCase() : '';
     if (t === 'circle') return;
+    var n = event.target, insideAnno = false; while(n){ if (n.classList && n.classList.contains('annotation-camera')) { insideAnno = true; break; } n = n.parentNode; }
+    if (!insideAnno) { svg.selectAll('.annotation-camera').remove(); }
     selected.key = null; selected.year = null;
     svg.selectAll('path.series-line').transition().duration(300).style('opacity', 1).attr('stroke-width', 2);
     svg.selectAll('circle').transition().duration(200).style('opacity', 1).attr('r', 5);
@@ -128,50 +130,50 @@
         container.setAttribute('role','img');
         panel.appendChild(container);
       }
-      container.innerHTML = '';
       setInfo1Visibility(false);
       var row = filtered().find(function(d){ return d.YEAR === year; }) || data.find(function(d){ return d.YEAR === year; });
       var police = row ? row.Police : null;
       var camera = row ? row.Camera : null;
       var series = [];
       var mode = methodSel ? methodSel.value : 'All';
-      if (mode === 'Police issued fines' || mode === 'Police') {
-        if (police != null && !isNaN(police)) series.push({ label:'Police', value:+police });
-      } else if (mode === 'Camera issued fines' || mode === 'Camera') {
-        if (camera != null && !isNaN(camera)) series.push({ label:'Camera', value:+camera });
-      } else {
-        if (police != null && !isNaN(police)) series.push({ label:'Police', value:+police });
-        if (camera != null && !isNaN(camera)) series.push({ label:'Camera', value:+camera });
-      }
-      if (series.length === 0){
-        var msg = document.createElement('div');
-        msg.textContent = 'No enforcement data available for '+year+' ('+mode+')';
-        msg.style.color = '#ddd'; msg.style.fontSize='13px'; msg.style.padding='8px 4px';
-        container.appendChild(msg);
-        return;
-      }
+      if (mode === 'Police issued fines' || mode === 'Police') { if (police != null && !isNaN(police)) series.push({ label:'Police', value:+police }); }
+      else if (mode === 'Camera issued fines' || mode === 'Camera') { if (camera != null && !isNaN(camera)) series.push({ label:'Camera', value:+camera }); }
+      else { if (police != null && !isNaN(police)) series.push({ label:'Police', value:+police }); if (camera != null && !isNaN(camera)) series.push({ label:'Camera', value:+camera }); }
+      if (series.length === 0){ var msg = document.createElement('div'); msg.textContent = 'No enforcement data available for '+year+' ('+mode+')'; msg.style.color = '#ddd'; msg.style.fontSize='13px'; msg.style.padding='8px 4px'; container.innerHTML = ''; container.appendChild(msg); return; }
       var colors = { Police: '#0072B2', Camera: '#D55E00' };
-      var w = (panel.clientWidth||300), h = Math.max(300, (panel.clientHeight||340));
-      var m = { top: 60, right: 16, bottom: 40, left: 60 };
-      var iw = Math.max(260, Math.round((w - m.left - m.right) * 0.78));
-      var ih = Math.max(320, Math.round((h - m.top - m.bottom) * 0.70));
-      var svg = d3.select(container).append('svg').attr('width','100%').attr('height',h).attr('viewBox','0 0 '+w+' '+h).attr('preserveAspectRatio','xMinYMin meet').style('display','block');
-      var innerW = w - m.left - m.right;
-      var leftPad = m.left + Math.round((innerW - iw)/2);
-      var g = svg.append('g').attr('transform','translate('+leftPad+','+m.top+')');
-      var x = d3.scaleBand().domain(series.map(function(d){ return d.label; })).range([0, iw]).padding(0.35);
-      var yMax = d3.max(series, function(d){ return d.value; });
-      var y = d3.scaleLinear().domain([0, yMax]).nice().range([ih, 0]);
-      g.append('g').attr('class','axis axis--x').attr('transform','translate(0,'+ih+')').call(d3.axisBottom(x));
-      g.append('g').attr('class','axis axis--y').call(d3.axisLeft(y).ticks(5).tickFormat(d3.format(',')));
-      var bars = g.selectAll('rect.bar').data(series).enter().append('rect').attr('class','bar').attr('x', function(d){ return x(d.label); }).attr('y', ih).attr('width', x.bandwidth()).attr('height', 0).attr('fill', function(d){ return colors[d.label]; }).attr('rx',4);
-      bars.transition().duration(600).ease(d3.easeCubicOut).attr('y', function(d){ return y(d.value); }).attr('height', function(d){ return ih - y(d.value); });
-      var fmtN = d3.format(',');
-      g.selectAll('text.bar-label').data(series).enter().append('text').attr('class','bar-label').attr('text-anchor','middle').attr('x', function(d){ return x(d.label) + x.bandwidth()/2; }).attr('y', function(d){ return y(d.value) - 8; }).style('opacity',0).text(function(d){ return fmtN(d.value); }).transition().duration(600).style('opacity',1);
-      svg.append('text').attr('x', w/2).attr('y', 18).attr('text-anchor','middle').style('font-size','18px').style('font-weight','700').style('fill','#fff').text('Annual Fines Comparison in '+year);
-      svg.append('text').attr('transform','rotate(-90)').attr('x', -(m.top + ih/2)).attr('y', 16).attr('text-anchor','middle').style('font-size','16px').style('fill','#fff').text('Annual Fines');
-      svg.append('text').attr('x', w/2 + 20).attr('y', h - 20).attr('text-anchor','middle').style('font-size','16px').style('fill','#fff').text('Detection Method');
-      container.setAttribute('aria-label','Police vs Camera Annual Fines in '+year);
+      function draw(){
+        container.innerHTML = '';
+        var w = Math.max(260, panel.clientWidth || 300);
+        var h = Math.max(280, panel.clientHeight || 340);
+        var mq = window.matchMedia('(max-width: 768px)');
+        var isMobile = mq.matches;
+        var m = isMobile ? { top: 50, right: 14, bottom: 42, left: 56 } : { top: 60, right: 18, bottom: 46, left: 60 };
+        var iw = Math.max(220, Math.round((w - m.left - m.right) * 0.78));
+        var ih = Math.max(220, Math.round((h - m.top - m.bottom) * 0.70));
+        var svg = d3.select(container).append('svg').attr('width','100%').attr('height',h).attr('viewBox','0 0 '+w+' '+h).attr('preserveAspectRatio','xMinYMin meet').style('display','block');
+        var innerW = w - m.left - m.right;
+        var leftPad = m.left + Math.round((innerW - iw)/2);
+        var g = svg.append('g').attr('transform','translate('+leftPad+','+m.top+')');
+        var x = d3.scaleBand().domain(series.map(function(d){ return d.label; })).range([0, iw]).padding(0.35);
+        var yMax = d3.max(series, function(d){ return d.value; });
+        var y = d3.scaleLinear().domain([0, yMax]).nice().range([ih, 0]);
+        var abbr = function(n){ if (n==null||!isFinite(n)) return ''; var a=Math.abs(n); if (a>=1000000) return (Math.round(n/100000)/10)+'M'; if (a>=1000) return (Math.round(n/100)/10)+'k'; return d3.format(',')(n); };
+        g.append('g').attr('class','axis axis--x').attr('transform','translate(0,'+ih+')').call(d3.axisBottom(x));
+        g.append('g').attr('class','axis axis--y').call(d3.axisLeft(y).ticks(5).tickFormat(isMobile?abbr:d3.format(',')));
+        var bars = g.selectAll('rect.bar').data(series).enter().append('rect').attr('class','bar').attr('x', function(d){ return x(d.label); }).attr('y', ih).attr('width', x.bandwidth()).attr('height', 0).attr('fill', function(d){ return colors[d.label]; }).attr('rx',4);
+        bars.transition().duration(600).ease(d3.easeCubicOut).attr('y', function(d){ return y(d.value); }).attr('height', function(d){ return ih - y(d.value); });
+        var fmtN = d3.format(',');
+        g.selectAll('text.bar-label').data(series).enter().append('text').attr('class','bar-label').attr('text-anchor','middle').attr('x', function(d){ return x(d.label) + x.bandwidth()/2; }).attr('y', function(d){ return y(d.value) - 8; }).style('opacity',0).style('font-size', isMobile? 'clamp(12px,2.2vw,14px)' : '14px').text(function(d){ return fmtN(d.value); }).transition().duration(600).style('opacity',1);
+        svg.append('text').attr('x', w/2).attr('y', 18).attr('text-anchor','middle').style('font-size', isMobile? 'clamp(14px,2.4vw,18px)' : '18px').style('font-weight','700').style('fill','#fff').text('Annual Fines Comparison in '+year);
+        svg.append('text').attr('transform','rotate(-90)').attr('x', -(m.top + ih/2)).attr('y', 16).attr('text-anchor','middle').style('font-size', isMobile? 'clamp(12px,2vw,16px)' : '16px').style('fill','#fff').text('Annual Fines');
+        var maxTickHX = 0; g.select('.axis--x').selectAll('text').each(function(){ var b = this.getBBox(); if (b && b.height > maxTickHX) maxTickHX = b.height; });
+        var gapX = isMobile ? 20 : 30;
+        svg.append('text').attr('x', w/2).attr('y', m.top + ih + maxTickHX + gapX).attr('text-anchor','middle').style('font-size', isMobile? 'clamp(12px,2vw,16px)' : '16px').style('fill','#fff').text('Detection Method');
+        container.setAttribute('aria-label','Police vs Camera Annual Fines in '+year);
+      }
+      draw();
+      if ('ResizeObserver' in window){ var ro = new ResizeObserver(function(){ draw(); }); ro.observe(panel); ro.observe(container); }
+      var mq768 = window.matchMedia('(max-width: 768px)'); if (mq768.addEventListener) mq768.addEventListener('change', function(){ draw(); }); else if (mq768.addListener) mq768.addListener(function(){ draw(); });
     }
 
     redraw = function() {
@@ -191,13 +193,24 @@
       if (!isFinite(yMax) || yMax <= 0) yMax = 1;
       var y = d3.scaleLinear().domain([0, yMax]).range([height, 0]).nice();
   
+      // Responsive ticks: odd-only when odd range selected; else even-only on mobile; full set otherwise; thin further at ≤400px
+      var startY = +startSel.value, endY = +endSel.value;
+      var oddRangeSelected = (startY % 2 === 1) && (endY % 2 === 1);
       var yearVals = f.map(function(d){ return d.YEAR; }).filter(function(v,i,a){ return a.indexOf(v)===i; }).sort(d3.ascending);
+      yearVals = oddRangeSelected ? yearVals.filter(function(y){ return y % 2 === 1; })
+                                  : (isMobile ? yearVals.filter(function(y){ return y % 2 === 0; }) : yearVals);
+      var isTiny = (window.innerWidth || document.documentElement.clientWidth) <= 400;
+      if (isTiny) { var maxTicks = 5; var step = Math.max(1, Math.ceil(yearVals.length / maxTicks)); yearVals = yearVals.filter(function(y,i){ return i % step === 0; }); }
+      function abbr(n){ if (n == null || !isFinite(n)) return ''; var abs = Math.abs(n); if (abs >= 1000000) return (Math.round(n/100000)/10)+'M'; if (abs >= 1000) return (Math.round(n/100)/10)+'k'; return d3.format(',')(n); }
       var xAxis = d3.axisBottom(x).tickValues(yearVals).tickFormat(d3.format('d')).tickSizeOuter(0);
-      var yAxis = d3.axisLeft(y);
+      var yAxis = isMobile ? d3.axisLeft(y).ticks(6).tickFormat(abbr) : d3.axisLeft(y).ticks(6).tickFormat(d3.format(','));
 
+      var isNarrow = (window.innerWidth || totalWidth) <= 780;
       var xAxisG = svg.append('g')
         .attr('transform', 'translate(0,' + height + ')')
         .attr('class', 'axis axis--x')
+        .attr('role','img')
+        .attr('aria-label','X axis: Year')
         .call(xAxis);
 
       xAxisG.selectAll('text')
@@ -207,11 +220,13 @@
         .attr('dy', '0.85em')
         .attr('font-size', isMobile ? 11 : 13);
     
-      svg.append('g')
+      var yAxisG = svg.append('g')
         .attr('class', 'axis axis--y')
+        .attr('role','img')
+        .attr('aria-label','Y axis: Annual fines')
         .call(yAxis);
 
-      svg.select('.axis--y').selectAll('text')
+      yAxisG.selectAll('text')
         .style('font-size', isMobile ? '11px' : '13px');
 
       var gridTicks = y.ticks();
@@ -228,8 +243,6 @@
         .attr('stroke-dasharray', '2,4')
         .attr('opacity', 0.35);
 
-      
-
       // Chart title
       svg.append('text')
         .attr('class', 'chart1-title')
@@ -241,13 +254,13 @@
         .text('Annual Fines by Mobile Phone Use');
 
       // Y-axis label
-      svg.append('text')
+      var ylab = svg.append('text')
         .attr('class', 'y-label')
-        .attr('transform', 'rotate(-90)')
-        .attr('x', -height / 2)
-        .attr('y', -70)
+        .attr('transform', 'rotate(-90) translate(' + (-height/2) + ',0)')
+        .attr('x', 0)
+        .attr('y', -(isNarrow ? 60 : 70))
         .attr('text-anchor', 'middle')
-        .style('font-size', isMobile ? '14px' : '18px')
+        .style('font-size', isNarrow ? 'clamp(12px, 2.2vw, 16px)' : (isMobile ? '14px' : '18px'))
         .text('Annual Fines');
 
       // Lines with continuous reveal
@@ -279,16 +292,20 @@
       });
       clipRect.transition().duration(3000).ease(d3.easeCubicOut).attr('width', width).on('end', renderCameraAnnotation);
       // Keep only one Year label (lower position)
-      svg.append('text')
-        .attr('x', width / 2)
-        .attr('y', height + 50)
-        .attr('text-anchor', 'middle')
-        .style('font-size', isMobile ? '16px' : '18px')
+      var maxTickH = 0;
+      xAxisG.selectAll('text').each(function(){ var b = this.getBBox(); if (b && b.height > maxTickH) maxTickH = b.height; });
+      var gap = isNarrow ? 30 : 30;
+      var xlab = svg.append('text')
+        .attr('class','x-label')
+        .attr('text-anchor','middle')
+        .style('font-size', isNarrow ? 'clamp(12px, 2.2vw, 16px)' : (isMobile ? '16px' : '18px'))
+        .attr('transform', 'translate(' + (width/2) + ',' + (height + maxTickH + gap) + ')')
         .text('Year');
 
       // Legend: centered; tighter spacing and shorter labels on mobile
       var legend = svg.append('g')
-        // move a bit left from exact center
+        .attr('role','group')
+        .attr('aria-label','Legend')
         .attr('transform', 'translate(' + (width / 2 - 80) + ',' + (height + 95) + ')');
 
       var spacing = isMobile ? 120 : 240;
@@ -313,7 +330,7 @@
           .attr('x', xoff + 36)
           .attr('y', 0)
           .attr('dominant-baseline', 'middle')
-          .style('font-size', isMobile ? '16px' : '18px')
+          .style('font-size', isNarrow ? 'clamp(12px, 2vw, 15px)' : (isMobile ? '14px' : '18px'))
           .text(labels[k]);
       });
     
@@ -321,14 +338,26 @@
       // Interactive dots: grow + solid fill on hover
       var fmt = d3.format(',');
       function placeTip(event){
-        var vw = window.innerWidth || document.documentElement.clientWidth;
-        var vh = window.innerHeight || document.documentElement.clientHeight;
         var rect = tooltip.node().getBoundingClientRect();
+        var cont = (svgRoot.node && svgRoot.node()) ? svgRoot.node().getBoundingClientRect() : document.getElementById('chart').getBoundingClientRect();
+        var pad = 10;
         var x = event.pageX, y = event.pageY;
-        var left = x + 10; if (left + rect.width > vw - 8) left = x - rect.width - 10;
-        var top = y + 10; if (top + rect.height > vh - 8) top = y - rect.height - 10;
+        var contL = cont.left + window.scrollX, contT = cont.top + window.scrollY;
+        var contR = cont.right + window.scrollX, contB = cont.bottom + window.scrollY;
+        var left = x + 10;
+        var top = y + 10;
+        if (left + rect.width > contR - pad) left = contR - pad - rect.width;
+        if (left < contL + pad) left = contL + pad;
+        if (top + rect.height > contB - pad) top = contB - pad - rect.height;
+        if (top < contT + pad) top = contT + pad;
         tooltip.style('left', left + 'px').style('top', top + 'px');
       }
+      var vwPts = window.innerWidth || document.documentElement.clientWidth;
+      var isTinyPts = vwPts <= 400;
+      var isSmallPts = vwPts <= 480;
+      var baseR = isTinyPts ? 3.5 : (isSmallPts ? 4 : 5);
+      var hoverR = isTinyPts ? 5.5 : (isSmallPts ? 6 : 7);
+      var selectedR = isTinyPts ? 7 : (isSmallPts ? 8 : 9);
       var circleGroup = svg.append('g').attr('class', 'points');
   
       displayKeys.forEach(function(k){
@@ -341,12 +370,12 @@
           .attr('data-key', k)
           .attr('cx', function(d){ return x(d.YEAR); })
           .attr('cy', function(d){ return y(d[k]); })
-          .attr('r', 5)
+          .attr('r', baseR)
           .attr('fill', seriesColor)
           .attr('stroke', 'none')
           .style('cursor', 'pointer')
           .on('mouseover', function(event, d){
-            d3.select(this).transition().duration(120).attr('r', 7);
+            d3.select(this).transition().duration(120).attr('r', hoverR);
             var lbl = k === 'Police' ? 'Police issued fines' : 'Camera issued fines';
             var html = '<div style="font-weight:700;margin-bottom:6px;font-size:15px">' + d.YEAR + '</div>'+
                        '<div style="display:flex;align-items:center;gap:8px">'+
@@ -363,7 +392,7 @@
           .on('mouseout', function(event, d){
             var ck = this.getAttribute('data-key');
             var keep = (selected.key === ck && selected.year === d.YEAR);
-            d3.select(this).transition().duration(150).attr('r', keep ? 9 : 5);
+            d3.select(this).transition().duration(150).attr('r', keep ? selectedR : baseR);
             if (!keep) tooltip.style('opacity', 0);
           })
           .on('click', function(event, d){
@@ -390,10 +419,30 @@
         var first = camPoints.find(function(d){ return d.YEAR === firstYear; });
         var px = x(first.YEAR) - 20;
         var py = y(first.Camera) - 180;
-        var boxW = 360, boxH = 140, pad = 14;
+        var pad = 14;
+        var vwAnno = window.innerWidth || document.documentElement.clientWidth;
+        var isSmallAnno = vwAnno <= 480;
+        var isTinyAnno = vwAnno <= 400;
+        var padMin = 10;
+        var boxW = isTinyAnno ? Math.max(200, Math.min(Math.round(width * 0.92), 240))
+                               : (isSmallAnno ? Math.max(240, Math.min(Math.round(width * 0.90), 280))
+                                              : Math.max(220, Math.min(360, Math.round(width * 0.58))));
+        var boxH = isTinyAnno ? Math.max(200, Math.min(Math.round(height * 0.42), 130))
+                               : (isSmallAnno ? Math.max(180, Math.min(Math.round(height * 0.40), 150))
+                                              : Math.max(180, Math.min(Math.round(height * 0.34), 160)));
         var right = (px + 12 + boxW) <= width;
-        var bx = right ? px + 12 : px - boxW - 12;
-        var by = py - 24; if (by < 8) by = 8; if (by + boxH > height - 8) by = height - boxH - 8;
+        var bx, by;
+        if (isSmallAnno) {
+          bx = Math.round((width - boxW) / 2);
+          bx = Math.max(padMin, Math.min(width - boxW - padMin, bx));
+          if (py - boxH - 12 >= padMin) { by = py - boxH - 12; } else { by = py + 12; }
+          by = Math.max(padMin, Math.min(height - boxH - padMin, by));
+        } else {
+          bx = right ? px + 12 : px - boxW - 12;
+          bx = Math.max(padMin, Math.min(width - boxW - padMin, bx));
+          by = py - 24;
+          by = Math.max(padMin, Math.min(height - boxH - padMin, by));
+        }
         var ag = svg.append('g').attr('class','annotation-camera').style('pointer-events','none');
         var leader = ag.append('line')
           .attr('x1', px + 20)
@@ -404,7 +453,7 @@
           .style('opacity',0);
         leader.transition().duration(700).ease(d3.easeCubicOut)
           .style('opacity',1)
-          .attr('x2', (bx > px ? bx : bx + boxW))
+          .attr('x2', Math.max(bx + 8, Math.min(bx + boxW - 8, bx + boxW/2)))
           .attr('y2', Math.max(by + 8, Math.min(by + boxH - 8, py)));
           
         var rect = ag.append('rect')
@@ -466,7 +515,7 @@
         circleGroup.selectAll('circle')
           .transition().duration(200)
           .style('opacity', function(){ var ck = this.getAttribute('data-key'); return (!has || ck === selected.key) ? 1 : 0.1; })
-          .attr('r', function(p){ var ck = this.getAttribute('data-key'); return (has && ck === selected.key && p.YEAR === selected.year) ? 9 : 5; });
+          .attr('r', function(p){ var ck = this.getAttribute('data-key'); return (has && ck === selected.key && p.YEAR === selected.year) ? selectedR : baseR; });
         if (!has) { resetInfo1Panel(); }
       }
       applySelection();

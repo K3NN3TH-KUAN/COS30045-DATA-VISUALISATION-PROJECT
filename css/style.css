@@ -169,11 +169,14 @@ body {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  height: 100%;        /* match chart height via grid row height */
-  min-height: 0;       /* allow children to shrink within the container */
+  height: 100%;
+  min-height: 0;
   align-items: stretch;
-  overflow: hidden;    /* container does not scroll; inner panels handle overflow */
+  overflow: hidden;
 }
+
+/* Filters container: full-width area that can span grid columns in responsive layouts */
+.filters-container { width: 100%; }
 
 /* ===== SPECIFIC SECTION LAYOUTS ===== */
 
@@ -314,7 +317,7 @@ body {
 
 /* Make fifth section chart container proper size */
 #blank3-section .viz-grid {
-  height: 75vh;
+  height: var(--viz-grid-h, 80vh);
 }
 
 #blank3-section .viz-chart {
@@ -1509,7 +1512,7 @@ body[data-theme="dark"] {
   gap: 8px;
   cursor: pointer;
   transition: background 160ms ease, border-color 160ms ease, box-shadow 180ms ease, transform 120ms ease;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2364748b' viewBox='0 0 16 16'><path d='M4.646 6.646a.5.5 0 0 1 .708 0L8 9.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708z'/></svg>");
+  /* background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2364748b' viewBox='0 0 16 16'><path d='M4.646 6.646a.5.5 0 0 1 .708 0L8 9.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708z'/></svg>"); */
   background-repeat: no-repeat;
   background-position: right 16px center;
   background-size: 16px 16px;
@@ -1580,7 +1583,43 @@ body[data-theme="dark"] {
 #blank3-section .dropdown-checkbox .opt { display: flex; align-items: center; gap: 8px; padding: 6px 4px; color: #0f172a; }
 #blank3-section .dropdown-checkbox .opt input[type="checkbox"] { width: 16px; height: 16px; }
 
+/* Visualisation 1 desktop: place filters above info on left */
+@media (min-width: 1025px) {
+  #blank1-section, #blank2-section, #blank3-section { height: 100vh; min-height: 100vh; overflow-y: auto; overscroll-behavior-y: contain; }
+  #blank1-section .viz-grid,
+  #blank3-section .viz-grid {
+    grid-template-columns: 30% 70%;
+    grid-auto-rows: auto 1fr;
+    grid-template-areas:
+      "filters chart"
+      "info chart";
+    /* height: auto; */
+    transition: grid-template-areas 240ms ease, grid-auto-rows 240ms ease, height 240ms ease;
+  }
+  #blank2-section .viz-grid {
+    grid-template-columns: 70% 30%;
+    grid-auto-rows: auto 1fr;
+    grid-template-areas:
+      "chart filters"
+      "chart info";
+    transition: grid-template-areas 240ms ease, grid-auto-rows 240ms ease, height 240ms ease;
+  }
+  #blank2-section .filters-container,
+  #blank3-section .filters-container,
+  #blank1-section .filters-container { grid-area: filters; margin-bottom: 12px; }
+  #blank2-section .viz-controls-info,
+  #blank3-section .viz-controls-info,
+  #blank1-section .viz-controls-info { grid-area: info; }
+  #blank2-section .viz-chart,
+  #blank3-section .viz-chart,
+  #blank1-section .viz-chart { grid-area: chart; }
+
+  #blank3-section .info-title { margin-top: 12px; }
+}
+
 @media (max-width: 1024px) {
+  .top-left-logo { display: none; }
+  /* Background section */
   #background-section .bg-title { font-size: 30px; }
   #background-section .audience-title { font-size: 20px; }
   #background-section .background-text { max-width: 600px; margin: 0 auto 16px; }
@@ -1597,6 +1636,96 @@ body[data-theme="dark"] {
   .discover-subtitle { font-size: 18px; max-width: 720px; }
   .discover-grid { width: 90vw; grid-template-columns: repeat(2, minmax(240px, 1fr)); gap: 18px; }
   .discover-card { padding: 16px; }
+
+  /* Visualisation 1: place filters above chart */
+  .viz-section { align-items: stretch; flex-direction: column;}
+
+  #blank1-section, #blank2-section, #blank3-section { height: 100vh; min-height: 100vh; overflow-y: auto; overscroll-behavior-y: contain; padding: 16px 0 0 0; width: 100vw; background-color: #f5f8fc; }
+  #blank1-section .viz-grid {
+    height: auto;
+    padding: 12px;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      "filters"
+      "chart"
+      "info";
+    align-items: stretch;
+    transition: grid-template-columns 240ms ease, grid-template-areas 240ms ease, gap 240ms ease;
+    gap: 16px;
+    width: 90vw;
+  }
+  #blank1-section .filters-container { grid-area: filters; }
+  #blank1-section .viz-controls-info { grid-area: info; }
+  #blank1-section .viz-chart { grid-area: chart; }
+  #blank1-section .filters-container { margin-bottom: 12px; }
+
+  #blank3-section .viz-grid {
+    height: auto;
+    padding: 12px;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      "filters"
+      "chart"
+      "info";
+    align-items: stretch;
+    transition: grid-template-columns 240ms ease, grid-template-areas 240ms ease, gap 240ms ease;
+    gap: 16px;
+    width: 90vw;
+  }
+  #blank3-section .filters-container { grid-area: filters; }
+  #blank3-section .viz-controls-info { grid-area: info; }
+  #blank3-section .viz-chart { grid-area: chart; }
+  #blank3-section .filters-container { margin-bottom: 12px; }
+  #blank3-section .footer-bar { position: static; }
+
+  /* Visualisation 2: stack filters → chart → info on tablets */
+  #blank2-section .viz-grid {
+    height: auto;
+    padding: 12px;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      "filters"
+      "chart"
+      "info";
+    align-items: stretch;
+    transition: grid-template-columns 240ms ease, grid-template-areas 240ms ease, gap 240ms ease;
+    gap: 16px;
+    width: 90vw;
+  }
+  #blank2-section .filters-container { grid-area: filters; }
+  #blank2-section .viz-controls-info { grid-area: info; }
+  #blank2-section .viz-chart { grid-area: chart; }
+  #blank2-section .filters-container { margin-bottom: 12px; }
+  
+  #blank1-section .filter-form #period1-label { grid-column: 1; }
+  #blank1-section .filter-form .period-row { grid-column: 2 / span 2; display: flex; gap: 16px; }
+  #blank1-section .filter-form label[for="det-method"] { grid-column: 4; }
+  #blank1-section .filter-form #det-method { grid-column: 5; width: 100%; min-width: 0; }
+  #blank1-section .footer-bar { position: static; }
+
+  #blank1-section .filters-container .filter-form {
+    display: grid;
+    grid-template-columns: auto auto auto auto 1fr;
+    gap: 12px 16px;
+    align-items: center;
+  }
+  #blank2-section .filters-container .filter-form {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 12px 16px;
+    align-items: end;
+  }
+  #blank2-section .filter-form #period-label { grid-column: 1; grid-row: 1; }
+  #blank2-section .filter-form .period-row { grid-column: 2; grid-row: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  #blank2-section .filter-form label[for="jurisdiction"] { grid-column: 1; grid-row: 2; }
+  #blank2-section .filter-form #jur-select { grid-column: 2; grid-row: 2; }
+  #blank2-section .filter-form label[for="det2-method"] { grid-column: 1; grid-row: 3; }
+  #blank2-section .filter-form #det2-method { grid-column: 2; grid-row: 3; width: 100%; min-width: 0; }
+  #blank2-section .footer-bar { position: static; }
 }
 
 @media (max-width: 768px) {
@@ -1605,6 +1734,48 @@ body[data-theme="dark"] {
   #section1 h1 { font-size: 28px; }
   #section1 .subtitle { font-size: 15px; margin-bottom: 24px; }
   .scroll-btn { padding: 12px 22px; font-size: 15px; }
+
+  /* Visualisation 1: compact typography and spacing */
+  #blank1-section .filters-container .filter-form { gap: 10px 12px; }
+  #blank1-section .filter-form .period-row { gap: 12px; }
+  #blank1-section .viz-controls label { font-size: 14px; }
+  #blank1-section .viz-controls select { font-size: 14px; min-height: 40px; padding: 8px 10px; }
+  #blank1-section .info-title { font-size: 16px; }
+  #blank1-section .info-points li { font-size: 14px; line-height: 1.5; margin: 8px 0; }
+  #blank1-section .chart-card { padding: 14px; }
+  #blank1-section .btn-pill { padding: 10px 16px; font-size: 14px; }
+
+  /* Visualisation 2: compact spacing */
+  #blank2-section .filters-container .filter-form { gap: 10px 12px; }
+  #blank2-section .filter-form .period-row { gap: 12px; }
+  #blank2-section .viz-controls label { font-size: 14px; }
+  #blank2-section .viz-controls select { font-size: 14px; min-height: 40px; padding: 8px 10px; }
+  #blank2-section .info-title { font-size: 16px; }
+  #blank2-section .info-points li { font-size: 14px; line-height: 1.5; margin: 8px 0; }
+  #blank2-section .chart-card { padding: 14px; }
+  #blank2-section .btn-pill { padding: 10px 16px; font-size: 14px; }
+
+  #blank3-section .filters-container .filter-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 10px;
+    align-items: end;
+  }
+  #blank3-section .viz-controls label { font-size: 13px; }
+  #blank3-section .viz-controls select { font-size: 13px; min-height: 38px; padding: 8px 10px; }
+  #blank3-section .info-title { font-size: 15px; }
+  #blank3-section .info-points li { font-size: 13px; line-height: 1.5; margin: 6px 0; }
+  #blank3-section .chart-card { padding: 12px; }
+  #blank3-section .btn-pill { padding: 10px 16px; font-size: 14px; }
+
+  #blank3-section .filters-container .filter-form { gap: 10px 12px; }
+  #blank3-section .filter-form .period-row { gap: 12px; }
+  #blank3-section .viz-controls label { font-size: 14px; }
+  #blank3-section .viz-controls select { font-size: 14px; min-height: 40px; padding: 8px 10px; }
+  #blank3-section .info-title { font-size: 16px; }
+  #blank3-section .info-points li { font-size: 14px; line-height: 1.5; margin: 8px 0; }
+  #blank3-section .chart-card { padding: 14px; }
+  #blank3-section .btn-pill { padding: 10px 16px; font-size: 14px; }
 
   /* Background section */
   #background-section .bg-title { font-size: 28px; }
@@ -1622,28 +1793,65 @@ body[data-theme="dark"] {
   .cta-top-btn.pill { padding: 10px 18px; font-size: 15px; }
   .card-title { font-size: 18px;}
   .card-desc { font-size: 15px; line-height: 1.6; }
-
-  .viz-section .viz-grid { grid-template-columns: 1fr 1fr; gap: 16px; width: 92vw; }
-  #blank1-section .viz-grid,
-  #blank2-section .viz-grid,
-  #blank3-section .viz-grid { grid-template-columns: 1fr 1fr; gap: 16px; width: 92vw; }
-  .viz-controls { gap: 12px; }
-  .top-left-logo { display: none; }
+  
 }
 
 @media (max-width: 480px) {
+  /* Landing page */
   #section1 { padding: 24px 12px 0; }
   #section1 h1 { font-size: 26px; }
   #section1 .subtitle { font-size: 14px; margin-bottom: 20px; }
   .viz-section .viz-grid { grid-template-columns: 1fr; gap: 12px; width: 94vw; }
   #blank1-section .viz-grid,
   #blank2-section .viz-grid,
-  #blank3-section .viz-grid { grid-template-columns: 1fr; gap: 12px; width: 94vw; }
+  #blank3-section .viz-grid { grid-template-columns: 1fr; gap: 12px; width: 90vw; }
   .footer-bar { flex-direction: column; align-items: center; gap: 6px; font-size: 12px; padding: 10px 14px; }
   .scroll-btn { padding: 14px 24px; font-size: 16px; }
   #section1 .scroll-btn i { font-size: 16px; }
   .toggle { padding: 10px 14px; min-height: 44px; }
 
+  /* Visualisation 1: tighter mobile typography and spacing */
+  #blank1-section .filters-container .filter-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 10px;
+    align-items: end;
+  }
+  #blank1-section .filter-form #period1-label { grid-column: 1 / -1; font-size: 13px; }
+  #blank1-section .filter-form .period-row { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  #blank1-section .filter-form label[for="det-method"] { grid-column: 1 / -1; font-size: 13px; }
+  #blank1-section .filter-form #det-method { grid-column: 1 / -1; width: 100%; min-width: 0; }
+  #blank1-section .filter-form .period-row { gap: 10px; }
+  #blank1-section .viz-controls label { font-size: 13px; }
+  #blank1-section .viz-controls select { font-size: 13px; min-height: 38px; padding: 8px 10px; }
+  #blank1-section .info-title { font-size: 15px; }
+  #blank1-section .info-points li { font-size: 13px; line-height: 1.5; margin: 6px 0; }
+  #blank1-section .chart-card { padding: 12px; }
+  #blank1-section .btn-pill { padding: 10px 16px; font-size: 14px; }
+
+  /* Visualisation 2: tighter mobile typography and spacing */
+  #blank2-section .filters-container .filter-form {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 8px 10px;
+    align-items: center;
+  }
+
+  #blank2-section .viz-controls label { font-size: 13px; }
+  #blank2-section .viz-controls select { font-size: 13px; min-height: 38px; padding: 8px 10px; }
+  #blank2-section .info-title { font-size: 15px; }
+  #blank2-section .info-points li { font-size: 13px; line-height: 1.5; margin: 6px 0; }
+  #blank2-section .chart-card { padding: 12px; }
+  #blank2-section .btn-pill { padding: 10px 16px; font-size: 14px; }
+
+  #blank3-section .viz-controls label { font-size: 13px; }
+  #blank3-section .viz-controls select { font-size: 13px; min-height: 38px; padding: 8px 10px; }
+  #blank3-section .info-title { font-size: 15px; margin-top: 12px; }
+  #blank3-section .info-points li { font-size: 13px; line-height: 1.5; margin: 6px 0; }
+  #blank3-section .chart-card { padding: 12px; }
+  #blank3-section .btn-pill { padding: 10px 16px; font-size: 14px; }
+
+  /* Background section */
   #background-section .bg-title { font-size: 24px; }
   #background-section .audience-title { font-size: 20px; }
   #background-section .background-text { max-width: 80vw; font-size: 15px; line-height: 1.6; }

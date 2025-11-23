@@ -155,11 +155,13 @@
 
     // Title
     state.svg.selectAll('.chart-title').remove();
+    var vwTitle = window.innerWidth || document.documentElement.clientWidth;
+    var fsTitle = vwTitle <= 480 ? 11 : (vwTitle <= 768 ? 13 : (vwTitle <= 1024 ? 14 : 15));
     state.svg.append('text')
       .attr('class','chart-title')
       .attr('x', state.margin.left)
       .attr('y', 22)
-      .style('font-size','15px')
+      .style('font-size', fsTitle + 'px')
       .style('font-weight','700')
       .style('fill','#000000')
       .text('Fines per 10,000 by Jurisdiction');
