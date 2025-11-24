@@ -417,13 +417,16 @@
       currentColorScale = color;
     
       // Vertical legend on the right
-      var legendWidth = isFullscreen ? 18 : 14;
-      var legendHeight = Math.max(120 * uiScale, Math.min(240 * uiScale, height - 40));
-      var legendX = width - legendWidth - 36; // moved further left
-      var legendY = 14;
+      var vw = window.innerWidth || document.documentElement.clientWidth;
+      var legendWidth = (vw <= 480) ? 10 : (isFullscreen ? 18 : 14);
+      var legendHeight = (vw <= 480)
+        ? Math.max(90 * uiScale, Math.min(160 * uiScale, height - 60))
+        : Math.max(120 * uiScale, Math.min(240 * uiScale, height - 40));
+      var legendX = (vw <= 480) ? (width - legendWidth - 24) : (width - legendWidth - 36);
+      var legendY = (vw <= 480) ? 8 : 14;
 
       var hoverX = legendX + (legendWidth / 2);
-      var hoverY = legendY + legendHeight + 16;
+      var hoverY = legendY + legendHeight + 14;
 
       var legend = g.append('g').attr('transform', 'translate(' + legendX + ',' + legendY + ')');
 
@@ -472,10 +475,14 @@
         .attr('stroke', '#ccc');
 
       var axisScale = d3.scaleLinear().domain([min, max]).range([legendHeight, 0]);
+      var tCount = (vw <= 480) ? 4 : 6;
       legend.append('g')
         .attr('transform', 'translate(' + legendWidth + ',0)')
-        .call(d3.axisRight(axisScale).ticks(6).tickFormat(d3.format('.2f')))
-        .call(function(gAxis){ gAxis.select('.domain').attr('stroke','#ccc'); });
+        .call(d3.axisRight(axisScale).ticks(tCount).tickFormat(d3.format('.2f')))
+        .call(function(gAxis){
+          gAxis.select('.domain').attr('stroke','#ccc');
+          if (vw <= 480) { gAxis.selectAll('text').style('font-size','9px'); }
+        });
 
       var legendIndicator = legend.append('line')
         .attr('class', 'legend-indicator')
@@ -572,10 +579,11 @@
       // TAS: bottom-right (move slightly further down)
       positions.TAS = { x: rightX, y: height - boxH, edge: 'left' };
       // ACT: above TAS; move further up (more in non-fullscreen)
+      var vw = window.innerWidth || document.documentElement.clientWidth;
       positions.ACT = {
         x: rightX,
         y: positions.TAS.y - (boxH + gap) - (isFullscreen ? 0 : 12),
-        edge: 'left'
+        edge: (vw <= 1024 ? 'top' : 'left')
       };
       // NSW: place directly below QLD; nudge left in fullscreen while respecting legend
       var nswRightLimit = legendX - 6; // allow NSW 2px closer to legend than others
@@ -602,9 +610,12 @@
 
         // Slightly enlarge only ACT's callout container
         var localW = boxW, localH = boxH;
+        var vw = window.innerWidth || document.documentElement.clientWidth;
         if (abbr === 'ACT') {
-          localW = boxW + 24; // widen a bit to fit all content
-          localH = boxH + 12; // slightly taller for wrapped title/details
+          localW = boxW + 24;
+          localH = boxH + (vw <= 480 ? 44 : (vw <= 768 ? 36 : 12));
+        } else if (abbr === 'WA' || abbr === 'NT' || abbr === 'NSW') {
+          localH = boxH + (vw <= 480 ? 36 : ((vw <= 768 && isFullscreen) ? 28 : 0));
         }
 
         var boxX = pos.x, boxY = pos.y;
@@ -833,6 +844,89 @@
           .style('pointer-events', 'none');
       });
 
+      var isCompact = (window.innerWidth || document.documentElement.clientWidth) <= 768;
+      if (isCompact) {
+        g.selectAll('.callout, .callout-link, .callout-link-node').remove();
+      }
+      function clearSingleCallout(){
+        g.selectAll('#single-callout').remove();
+      }
+      function showSingleCallout(abbr){
+        clearSingleCallout();
+        var pos = positions[abbr];
+        if (!pos) return;
+        var localW = boxW, localH = boxH;
+        var vw = window.innerWidth || document.documentElement.clientWidth;
+        if (abbr === 'ACT'){
+          localW = boxW + 24;
+          localH = boxH + (vw <= 480 ? 44 : (vw <= 768 ? 36 : 12));
+        } else if (abbr === 'WA' || abbr === 'NT' || abbr === 'NSW') {
+          localH = boxH + (vw <= 480 ? 36 : ((vw <= 768 && isFullscreen) ? 28 : 0));
+        }
+        var boxX = pos.x, boxY = pos.y;
+        if (abbr === 'ACT' && positions && positions.TAS){ boxY = positions.TAS.y - (localH + gap) - (isFullscreen ? 0 : 12); }
+        var row = rowByAbbr[abbr];
+        var fullName = nameByAbbr[abbr] || abbr || '?';
+        var cg = g.append('g')
+          .attr('id','single-callout')
+          .attr('class','callout')
+          .attr('data-abbr', abbr)
+          .attr('transform', 'translate(' + boxX + ',' + boxY + ')');
+        cg.append('rect')
+          .attr('width', localW)
+          .attr('height', localH)
+          .attr('rx', cornerR)
+          .attr('fill', '#e9edf2')
+          .attr('stroke', '#9aa5b1');
+        var labelsX = 12, columnGap = 90, valuesX = labelsX + columnGap, baseY = 18, lineGap = 16;
+        var titleText = cg.append('text')
+          .attr('class', 'callout-title')
+          .attr('x', localW / 2)
+          .attr('y', baseY)
+          .attr('text-anchor', 'middle')
+          .style('font-size', (12 * uiScale) + 'px')
+          .style('font-weight', '600')
+          .style('fill', '#1f2937')
+          .text(fullName + ' (' + (abbr || '?') + ')');
+        (function wrapTitle(){
+          var maxW = localW - 16;
+          var node = titleText.node();
+          if (!node) return;
+          function computed(){ try { return node.getComputedTextLength ? node.getComputedTextLength() : node.getBBox().width; } catch(e){ return maxW; } }
+          if (computed() > maxW) {
+            var text = node.textContent || '';
+            var words = text.split(/\s+/).filter(Boolean);
+            node.textContent = '';
+            var line = [];
+            var lineNumber = 0;
+            var tspan = d3.select(node).append('tspan').attr('x', localW/2).attr('y', baseY).attr('dy', '0em');
+            words.forEach(function(w){
+              line.push(w);
+              tspan.text(line.join(' '));
+              if (computed() > maxW) {
+                line.pop();
+                tspan.text(line.join(' '));
+                line = [w];
+                lineNumber += 1;
+                tspan = d3.select(node).append('tspan').attr('x', localW/2).attr('y', baseY).attr('dy', (1.1*lineNumber)+'em').text(w);
+              }
+            });
+          }
+        })();
+        var titleLines = titleText.selectAll('tspan').nodes().length || 1;
+        var detailsStartY = baseY + (titleLines > 1 ? (lineGap * titleLines) : 0);
+        ['Fines per 10,000','Fines','Licences'].forEach(function(lbl, i){
+          var y = detailsStartY + (i + 1) * lineGap;
+          cg.append('text').attr('x', labelsX).attr('y', y).style('font-size','10px').style('fill','#1f2937').text(lbl);
+          var val = (function(){
+            if (i === 0) return (row && row.RATE != null && isFinite(row.RATE)) ? d3.format('.2f')(row.RATE) : 'N/A';
+            if (i === 1) return (row && row.FINES != null && isFinite(row.FINES)) ? d3.format(',d')(row.FINES) : 'N/A';
+            return (row && row.TOTAL_LICENCES != null && isFinite(row.TOTAL_LICENCES)) ? d3.format(',d')(row.TOTAL_LICENCES) : 'N/A';
+          })();
+          cg.append('text').attr('x', valuesX).attr('y', y).style('font-size','10px').style('fill','#1f2937').text(val);
+        });
+      }
+
       var hoverText = g.append('text')
         .attr('class', 'hover-info')
         .attr('x', hoverX)
@@ -842,7 +936,7 @@
         .style('fill', '#666')
         .style('pointer-events', 'none')
         .style('z-index', 1)
-        .text('Hover over states');
+        .text(isCompact ? 'Tap a state' : 'Hover over states');
     
       // Draw states - this will now fill the entire container
       g.selectAll('path.state')
@@ -888,20 +982,27 @@
         })
         .on('mouseout', function () {
           lastHoverAbbr = null;
-          hoverText.text('Hover over states');
+          var isCompact = (window.innerWidth || document.documentElement.clientWidth) <= 768;
+          hoverText.text(isCompact ? 'Tap a state' : 'Hover over states');
           legendIndicator.attr('opacity', 0);
-          // Callouts stay visible; no change on mouseout
           updateFocus(focusedAbbr || null);
         })
         .on('click', function (event, d) {
           var name = getFeatureName(d);
           var abbr = abbrByName[name];
-          if (focusedAbbr === abbr) {
-            updateFocus(null);
+          var isCompact = (window.innerWidth || document.documentElement.clientWidth) <= 768;
+          if (isCompact) {
+            if (focusedAbbr === abbr) {
+              clearSingleCallout();
+              updateFocus(null);
+            } else {
+              showSingleCallout(abbr);
+              updateFocus(abbr);
+            }
           } else {
-            updateFocus(abbr);
+            if (focusedAbbr === abbr) { updateFocus(null); }
+            else { updateFocus(abbr); }
           }
-          // Callouts already rendered; click only updates focus styling
         })
         .append('title')
         .text(function (d) {
@@ -920,7 +1021,9 @@
         var t = event.target;
         var cls = (t && t.getAttribute && t.getAttribute('class')) || '';
         var isInteractive = /\b(state|callout|callout-link|callout-link-node)\b/.test(cls);
+        var isCompact = (window.innerWidth || document.documentElement.clientWidth) <= 768;
         if (!isInteractive) {
+          if (isCompact) { clearSingleCallout(); }
           updateFocus(null);
         }
       });
