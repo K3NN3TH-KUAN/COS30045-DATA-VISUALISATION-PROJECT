@@ -83,6 +83,9 @@
     var tooltip = d3.select('body')
       .append('div')
       .attr('id', 'chart1-tooltip')
+      .attr('role','status')
+      .attr('aria-live','polite')
+      .attr('aria-atomic','true')
       .style('position', 'absolute')
       .style('background', '#eef1f5')
       .style('color', '#0b1f3b')
@@ -91,6 +94,8 @@
       .style('box-shadow', '0 6px 18px rgba(0,0,0,0.20)')
       .style('font-size', '14px')
       .style('pointer-events', 'none')
+      .style('transition','opacity 120ms ease, transform 100ms ease-out')
+      .style('will-change','transform')
       .style('opacity', 0);
 
     function setInfo1Visibility(show){
@@ -358,7 +363,8 @@
       var baseR = isTinyPts ? 3.5 : (isSmallPts ? 4 : 5);
       var hoverR = isTinyPts ? 5.5 : (isSmallPts ? 6 : 7);
       var selectedR = isTinyPts ? 7 : (isSmallPts ? 8 : 9);
-      var circleGroup = svg.append('g').attr('class', 'points');
+      var circleGroup = svg.append('g').attr('class', 'points').style('pointer-events','all');
+      if (circleGroup.raise) circleGroup.raise();
   
       displayKeys.forEach(function(k){
         var seriesColor = colors[k];
@@ -410,6 +416,96 @@
             event.stopPropagation();
           });
       });
+
+      // Hover guide line and multi-series tooltip
+      var vline = svg.append('line')
+        .attr('class','hover-vline')
+        .attr('y1', 0)
+        .attr('y2', height)
+        .attr('stroke', '#667085')
+        .attr('stroke-width', 2)
+        // .attr('stroke-dasharray', '3,3')
+        .attr('opacity', 0)
+        .attr('aria-hidden','true');
+      if (vline.raise) vline.raise();
+      var yearsAll = f.map(function(d){ return d.YEAR; });
+      function nearestYear(px){
+        var yApprox = Math.round(x.invert(px));
+        var best = yearsAll[0], bd = Infinity;
+        for (var i=0;i<yearsAll.length;i++){ var yy=yearsAll[i]; var dlt = Math.abs(yy - yApprox); if (dlt < bd){ bd = dlt; best = yy; } }
+        return best;
+      }
+      function htmlForYear(yr){
+        var row = f.find(function(d){ return d.YEAR === yr; });
+        var nf = d3.format(',');
+        var h = '<div style="font-weight:700;margin-bottom:6px;font-size:15px">' + yr + '</div>';
+        displayKeys.forEach(function(k){
+          var col = colors[k];
+          var lbl = k === 'Police' ? 'Police issued fines' : 'Camera issued fines';
+          var val = row && row[k] != null && !isNaN(row[k]) ? nf(row[k]) : 'N/A';
+          h += '<div style="display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:26px;height:8px;border-radius:8px;background:'+col+'"></span><span style="min-width:160px">'+lbl+'</span><span style="margin-left:auto;font-variant-numeric:tabular-nums">'+val+'</span></div>';
+        });
+        return h;
+      }
+      var lastYear = null, hideTimer = null, rafPending = false, lastEvt = null;
+      function updateFromEvent(evt){
+        var p = d3.pointer(evt, svg.node());
+        var yr = nearestYear(p[0]);
+        var xv = Math.max(0, Math.min(width, x(yr)));
+        vline.attr('x1', xv).attr('x2', xv);
+        if (lastYear !== yr){ tooltip.html(htmlForYear(yr)); lastYear = yr; }
+        tooltip.style('opacity', 0.98);
+        placeTip(evt);
+      }
+      function schedule(evt){
+        lastEvt = evt;
+        if (rafPending) return;
+        rafPending = true;
+        requestAnimationFrame(function(){
+          rafPending = false;
+          updateFromEvent(lastEvt);
+        });
+      }
+      var trap = svg.append('rect')
+        .attr('x', 0).attr('y', 0).attr('width', width).attr('height', height)
+        .attr('fill', 'transparent')
+        .attr('tabindex', 0)
+        .attr('role', 'application')
+        .attr('aria-label', 'Line chart data exploration')
+        .style('outline', 'none')
+        .style('pointer-events','none');
+      if (trap.lower) trap.lower();
+      trap.on('focus', function(){ clearTimeout(hideTimer); vline.transition().duration(160).attr('opacity', 0.9); tooltip.style('opacity', 0.98); })
+          .on('keydown', function(event){
+            var code = event.code || event.key;
+            if (code === 'ArrowLeft' || code === 'ArrowRight'){
+              var idx = yearsAll.indexOf(lastYear != null ? lastYear : yearsAll[0]);
+              var delta = (code === 'ArrowLeft') ? -1 : 1;
+              idx = Math.max(0, Math.min(yearsAll.length - 1, idx + delta));
+              var yr = yearsAll[idx];
+              var xv = Math.max(0, Math.min(width, x(yr)));
+              vline.attr('x1', xv).attr('x2', xv);
+              if (lastYear !== yr){ tooltip.html(htmlForYear(yr)); lastYear = yr; }
+              tooltip.style('opacity', 0.98);
+            } else if (code === 'Escape') {
+              tooltip.style('opacity', 0);
+              vline.transition().duration(160).attr('opacity', 0);
+              lastYear = null;
+            }
+          });
+      svg.on('mouseenter', function(){
+            clearTimeout(hideTimer);
+            vline.transition().duration(160).attr('opacity', 0.9);
+            tooltip.style('opacity', 0.98);
+          })
+         .on('pointermove', function(event){ schedule(event); })
+         .on('mouseleave', function(){
+            hideTimer = setTimeout(function(){
+              vline.transition().duration(160).attr('opacity', 0);
+              tooltip.style('opacity', 0);
+              lastYear = null;
+            }, 240);
+         });
 
       var camPoints = f.filter(function(d){ return d.Camera != null && !isNaN(d.Camera); });
       function renderCameraAnnotation(){
